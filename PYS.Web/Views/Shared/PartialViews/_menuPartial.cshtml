@@ -1,0 +1,207 @@
+﻿@using PYS.Web.Consts
+@using PYS.Web.Services
+@using PYS.Web.Helpers
+@{
+    // menü açılır kapanır işlemleri için -> hangi alt menüler var
+    var ikMenuControler = new[] { "Period", "OrganizationTree", "Indicators", "FormTypes", "AllForms", "PotentialForms", "IMSDataUpload", "NewStaging", "StagingPools", "AssignStaging", "StagingManagementApproval" };
+    // ik alt menüsündeki formların alt menüsünde -> hangi alt menüler var
+    var formControllers = new[] { "Indicators", "FormTypes", "AllForms", "PotentialForms", "IMSDataUpload" };
+    // ik alt menüsündeki kademelendirme alt menüsünde -> hangi alt menüler var
+    var stagingControllers = new[] { "NewStaging", "StagingPools", "AssignStaging", "StagingManagementApproval" };
+}
+<aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+    @*     <div class="app-brand demo ">
+        <a href="/" class="app-brand-link">
+            <span class="app-brand-text demo menu-text fw-bolder ms-2"><img src="~/sneat/assets/img/logos/kurumsal_logo.png" width="200px"></span>
+        </a>
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+        </a>
+    </div>
+ *@   
+    @* <div class="menu-inner-shadow"></div> *@
+    <img src="~/sneat/assets/img/logos/PYS.png" style="display: block; margin: 20px auto; width: 150px; height: auto;" />
+    <ul class="menu-inner py-1">
+        <!-- Dashboard -->
+        <li class="menu-item mt-2 @(ViewContext.IsActive("Home") ? "active" : "")">
+            <a asp-controller="Home" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-line-chart"></i>
+                <div data-i18n="Analytics">Gösterge Paneli</div>
+            </a>
+        </li>
+        <!--Değerlendirme Formları -->
+        <li class="menu-item mt-2 @(ViewContext.IsActive("Evaluations") ? "active" : "")">
+            <a asp-controller="Evaluations" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-file"></i>
+                <div data-i18n="Analytics">Değerlendirme Formları</div>
+            </a>
+        </li>
+        <!--Değerlendirme Formları  -->
+
+        @if (User.IsInRole(RoleConsts.Admin))
+        {
+            <!--Begin:IK Admin Paneli -->
+            <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">İnsan Kaynakları</span>
+            </li>
+            <li class="menu-item @(ViewContext.IsControllerIn(ikMenuControler) ? "open active" : "")">
+                <a href="javascript:void(0);" class="menu-link menu-toggle ">
+                    <i class="menu-icon tf-icons bx bx-dock-top"></i>
+                    <div data-i18n="Account Settings">IK Yönetim Paneli</div>
+                </a>
+                <ul class="menu-sub">
+                    <!--Begin:Period -->
+                    <li class="menu-item @(ViewContext.IsActive("Period") ? "active" : "")">
+                        <a asp-controller="Period" asp-action="Index" class="menu-link ">
+                            <div data-i18n="Account">Dönem Listesi</div>
+                        </a>
+                    </li>
+                    <!--End:Period -->
+                    <!--Begin:OrganizationTree -->
+                    <li class="menu-item @(ViewContext.IsActive("OrganizationTree") ? "active" : "")">
+                        <a asp-controller="OrganizationTree" asp-action="Index" class="menu-link">
+                            <div data-i18n="">Organizasyon</div>
+                        </a>
+                    </li>
+                    <!--End:OrganizationTree -->
+                    <!--Begin:Forms -  Formlar menüsü ALT-MENÜLERLE -->
+                    <li class="menu-item @(ViewContext.IsControllerIn(formControllers) ? "open active" : "")">
+                        <a class="menu-link menu-toggle">
+                            <div data-i18n="">Formlar</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item">
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("Indicators") ? "active" : "")">
+                                <a asp-controller="Indicators" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Göstergeler</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("FormTypes") ? "active" : "")">
+                                <a asp-controller="FormTypes" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Form Tipleri</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("AllForms") ? "active" : "")">
+                                <a asp-controller="AllForms" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Tüm Formlar</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("PotentialForms") ? "active" : "")">
+                                <a asp-controller="PotentialForms" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Potansiyel Form ve Ayarlar</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("IMSDataUpload") ? "active" : "")">
+                                <a asp-controller="IMSDataUpload" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Veri Yükle</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--End:Forms -  Formlar menüsü ALT-MENÜLERLE -->
+                    <!--Begin: Staging Menu - Kademelendirme menüsü ALT-MENÜLERLE -->
+                    <li class="menu-item @(ViewContext.IsControllerIn(stagingControllers) ? "open active" : "")">
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <div data-i18n="Connections">Kademelendirme</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("NewStaging") ? "active" : "")">
+                                <a asp-controller="NewStaging" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Yeni Kademelendirme</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("StagingPools") ? "active" : "")">
+                                <a asp-controller="StagingPools" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Kademelendirme Havuzları</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("AssignStaging") ? "active" : "")">
+                                <a asp-controller="AssignStaging" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Kademelendirmeleri Ata</div>
+                                </a>
+                            </li>
+                            <li class="menu-item ms-3 @(ViewContext.IsActive("StagingManagementApproval") ? "active" : "")">
+                                <a asp-controller="StagingManagementApproval" asp-action="Index" class="menu-link">
+                                    <div data-i18n="">Kademelendirme Yönetim Onayı</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!--End: Staging Menu - Kademelendirme menüsü ALT-MENÜLERLE -->
+                </ul>
+            </li>
+            <!--End:IK Admin Paneli -->
+            <!--Begin:IK Report -->
+            <li class="menu-item mt-2 @(ViewContext.IsActive("Reports") ? "active" : "")">
+                <a asp-controller="Reports" asp-action="Index" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-report"></i>
+                    <div data-i18n="Analytics">Raporlar</div>
+                </a>
+            </li>
+            <!--End:IK Report -->
+
+            <!--UserManagement -->
+         @*    <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">@localization.GetKey("UserManagement")</span>
+            </li>
+            <li class="menu-item">
+                <a asp-controller="User" asp-action="Index" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                    <div data-i18n="Basic">@localization.GetKey("User")</div>
+                </a>
+            </li> *@
+            <!--CategoryManagement -->
+         @*    <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">@localization.GetKey("CategoryManagement")</span>
+            </li>
+            <li class="menu-item">
+                <a asp-controller="Category" asp-action="Index" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                    <div data-i18n="Basic">@localization.GetKey("Category")</div>
+                </a>
+            </li>  *@
+            <!--ProductManagement -->
+         @*     <li class="menu-header small text-uppercase">
+                <span class="menu-header-text">@localization.GetKey("ProductManagement")</span>
+            </li>
+            <li class="menu-item">
+                <a asp-controller="Product" asp-action="Index" class="menu-link">
+                    <i class="menu-icon tf-icons bx bxs-user-account"></i>
+                    <div data-i18n="Basic">@localization.GetKey("Product")</div>
+                </a>
+            </li>  *@
+            <!--ProductManagement -->
+        }
+
+        
+        <li class="menu-header small text-uppercase">
+            <span class="menu-header-text"></span>
+        </li>
+        <!--Begin:Notifications -->
+        <li class="menu-item mt-2 @(ViewContext.IsActive("Notifications") ? "active" : "")">
+            <a asp-controller="Notifications" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-bell"></i>
+                <div data-i18n="Analytics">Bildirimler</div>
+            </a>
+        </li>
+        <!--End:Notifications -->
+        <!--Begin:Faq -->
+        
+        <li class="menu-item mt-2 @(ViewContext.IsActive("Faq") ? "active" : "")">
+            <a asp-controller="Faq" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-info-circle"></i>
+                <div data-i18n="Analytics">Sıkça Sorulan Sorular</div>
+            </a>
+        </li>
+        <!--End:Faq -->
+        <!--Begin:Profile -->
+        <li class="menu-item mt-2 @(ViewContext.IsActive("Profile") ? "active" : "")">
+            <a asp-controller="Profile" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bxs-user"></i>
+                <div data-i18n="Analytics">Profil</div>
+            </a>
+        </li>
+        <!--End:Profile -->
+        
+    </ul>
+</aside>

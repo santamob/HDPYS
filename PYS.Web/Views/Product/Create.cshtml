@@ -1,0 +1,41 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.ProductFeature.Dtos
+@model CreateProductDto
+@{
+    string PlaseEnterContent = localization.GetKey("PlaseEnterContent").Value;
+}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light"><a asp-action="Index">@localization.GetKey("ProductManagement").Value</a> /</span> @localization.GetKey("Product").Value @localization.GetKey("Add").Value
+    </h4>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <form asp-controller="Product" asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" style="color:red"></div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label asp-for="Name" id="defaultFormControlInput" class="form-label">@localization.GetKey("Product").Value *</label>
+                            <input asp-for="Name" type="text" class="form-control mb-3" id="defaultFormControlInput" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" required>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Code" id="defaultFormControlInput" class="form-label">@localization.GetKey("Code").Value *</label>
+                            <input asp-for="Code" type="number" class="form-control mb-3" id="defaultFormControlInput" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" required>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="CategoryId" class="form-label">@localization.GetKey("Category").Value *</label>
+                            <select id="categoryList" class="form-control mb-3" asp-for="CategoryId" asp-items="@(new SelectList(Model.CategoryDtos,"Id","Name"))" required>
+                                <option value="">@localization.GetKey("PleaseSelect").Value</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger mb-3"></span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">@localization.GetKey("Save").Value</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

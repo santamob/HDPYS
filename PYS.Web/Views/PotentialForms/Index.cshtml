@@ -1,0 +1,321 @@
+﻿@using PYS.Web.Services
+@using PYS.Web.ViewModels.PotentialEvaluations
+@model PotentialEvaluationViewModel
+
+@section Scripts {
+<script>
+
+    let model = {
+    periodId: "",
+    criteriaList: []
+    };
+
+    function openFormModal() {
+
+    $('#potantialModal').modal('show');
+    }
+
+    let criteriaIndex = 0;
+
+    function addCriteriaBlock() {
+    const html = `
+    <div class="card mb-3 p-3 shadow-sm criteria-block" data-criteria-index="${criteriaIndex}">
+    <div class="row mb-2">
+    <div class="col-md-4">
+    <label>Kriter Adı</label>
+    <input type="text" class="form-control" name="criteriaName" required />
+    </div>
+    <div class="col-md-3">
+    <label>Min</label>
+    <input type="number" class="form-control" name="minValue" />
+    </div>
+    <div class="col-md-3">
+    <label>Max</label>
+    <input type="number" class="form-control" name="maxValue" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+    <button type="button" class="btn btn-danger btn-sm" onclick="removeCriteriaBlock(this)">Sil</button>
+    </div>
+    </div>
+
+    <table class="table table-sm table-bordered">
+    <thead>
+    <tr>
+    <th>Durum</th>
+    <th>Detay Açıklaması</th>
+    </tr>
+    </thead>
+    <tbody class="criteria-details">
+    </tbody>
+    </table>
+
+    <button type="button" class="btn btn-sm btn-primary" onclick="addDetailRow(this, ${criteriaIndex})">
+    <i class="bx bx-plus"></i> Detay Ekle
+    </button>
+    </div>
+    `;
+    $('#criteriaContainer').append(html);
+    criteriaIndex++;
+    }
+
+    function removeCriteriaBlock(button) {
+    $(button).closest('.card').remove();
+    }
+
+    function addDetailRow(button, cIndex) {
+    const tbody = $(button).siblings('table').find('tbody');
+    const rowIndex = tbody.find('tr').length;
+
+    const html = `
+    <tr>
+    <td class="text-center">
+    <input type="checkbox" name="criteriaDetailStatus" />
+    </td>
+    <td>
+    <input type="text" class="form-control" name="criteriaDetailName" placeholder="Açıklama" />
+    </td>
+    <td>
+    <button type="button" class="btn btn-sm btn-danger" onclick="$(this).closest('tr').remove()">
+    <i class="bx bx-trash"></i>
+    </button>
+    </td>
+    </tr>
+    `;
+    tbody.append(html);
+    }
+
+
+    function createModel() {
+    debugger;
+    model = {
+        periodId: $('#periodSelect option:selected').val(),
+        criteriaList: []
+    };
+
+    $('#criteriaContainer .criteria-block').each(function () {
+        const $block = $(this);
+        const criteria = {
+        criteriaName: $block.find('input[name="criteriaName"]').val(),
+        minValue: parseInt($block.find('input[name="minValue"]').val()),
+        maxValue: parseInt($block.find('input[name="maxValue"]').val()),
+        criteriaDetails: []
+    };
+
+    $block.find('.criteria-details  tr').each(function () {
+        const $detail = $(this);
+        const detail = {
+        criteriaDetailName: $detail.find('input[name="criteriaDetailName"]').val(),
+        criteriaDetailStatus: $detail.find('input[name="criteriaDetailStatus"]').is(':checked')
+    };
+     criteria.criteriaDetails.push(detail);
+    });
+
+     model.criteriaList.push(criteria);
+    });
+    }
+
+
+
+
+    $("#savePotentialEvaluation").click(function(){
+        debugger;
+        createModel();
+
+
+        $.ajax({
+            url: '/PotentialForms/Create',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(model),
+            success: function (response) {
+                toastr.success("Kayıt başarıyla oluşturuldu!");
+                console.log("Success:", response);
+            },
+            error: function (xhr) {
+                toastr.error("Kayıt oluşturulamadı.");
+                console.error("Error:", xhr);
+            }
+        });
+    });
+
+    $(".copyPotentialForm").click(function(){
+       
+        let periodId = $(this).attr("period-id");
+        console.log(periodId);
+      // return;
+        
+      $.ajax({
+            url: `/PotentialForms/GetPotantialFormsById?PeriodId=${periodId}`,
+            type: 'GET',
+            success: function (data) {
+                console.log("Gelen Potansiyel Veriler:", data);
+                fillPotentialModal(data);
+                $('#potantialModal').modal('show');
+        },
+        error: function () {
+            toastr.error("Veri yüklenemedi");
+        }
+    });
+    });
+
+    function fillPotentialModal(criteriaList) {
+       $('#criteriaContainer').empty(); // Önce var olanları temizle
+       let criteriaIndex = 0;
+
+       criteriaList.forEach(criteria => {
+           let block = $(`
+               <div class="card mb-3 p-3 shadow-sm criteria-block" data-criteria-index="${criteriaIndex}">
+                   <div class="row mb-2">
+                       <div class="col-md-4">
+                           <label>Kriter Adı</label>
+                           <input type="text" class="form-control" name="criteriaName" value="${criteria.criteriaName}" required />
+                       </div>
+                       <div class="col-md-3">
+                           <label>Min</label>
+                           <input type="number" class="form-control" name="minValue" value="${criteria.minValue}" />
+                       </div>
+                       <div class="col-md-3">
+                           <label>Max</label>
+                           <input type="number" class="form-control" name="maxValue" value="${criteria.maxValue}" />
+                       </div>
+                       <div class="col-md-2 d-flex align-items-end">
+                           <button type="button" class="btn btn-danger btn-sm" onclick="removeCriteriaBlock(this)">Sil</button>
+                       </div>
+                   </div>
+                   <table class="table table-sm table-bordered">
+                       <thead>
+                           <tr>
+                               <th>Durum</th>
+                               <th>Detay Açıklaması</th>
+                               <th></th>
+                           </tr>
+                       </thead>
+                       <tbody class="criteria-details">
+                       </tbody>
+                   </table>
+                   <button type="button" class="btn btn-sm btn-primary" onclick="addDetailRow(this, ${criteriaIndex})">
+                       <i class="bx bx-plus"></i> Detay Ekle
+                   </button>
+               </div>
+           `);
+
+           const tbody = block.find('.criteria-details');
+           criteria.criteriaDetails.forEach(detail => {
+               const row = `
+                   <tr>
+                       <td class="text-center">
+                           <input type="checkbox" name="criteriaDetailStatus" ${detail.criteriaDetailStatus ? 'checked' : ''} />
+                       </td>
+                       <td>
+                           <input type="text" class="form-control" name="criteriaDetailName" value="${detail.criteriaDetailName}" />
+                       </td>
+                       <td>
+                           <button type="button" class="btn btn-sm btn-danger" onclick="$(this).closest('tr').remove()">
+                               <i class="bx bx-trash"></i>
+                           </button>
+                       </td>
+                   </tr>
+               `;
+               tbody.append(row);
+           });
+
+           $('#criteriaContainer').append(block);
+           criteriaIndex++;
+       });
+   }
+
+
+</script>
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">IK Yönetim Paneli /</span> Potansiyel Form ve Ayarlar
+</h4>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0"></h5>
+        <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="openFormModal()"> <i class="bx bx-plus"></i>Yeni Potansiyel Form Ekle</a>
+
+    </div>
+
+    <div class="table table-hover table-fixed text-wrap">
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Yıl</th>
+                    <th>Dönem</th>
+                    <th>İşlem</th>
+
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var potential in Model.PotentialEvaluationPeriods)
+                {
+                    var a = Model.PotentialEvaluationPeriods;
+
+                    <tr>
+                        <td>@potential.Year</td>
+                        <td>@potential.Term</td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item copyPotentialForm" period-id="@potential.PeriodId">
+                                        <i class="bx bx-edit-alt me-1"></i> Kopyala
+                                    </a>
+                                    <a class="dropdown-item delete" >
+                                        <i class="bx bx-trash me-1"></i> Sil
+                                    </a>
+                                </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="potantialModal" tabindex="-1" aria-labelledby="addGuidanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bx bx-list-plus"></i> Yeni Potansiyel Formu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <form id="guidanceForm">
+
+                    <div class="mb-3">
+                        <label>Dönem Seçiniz</label>
+                        <select class="form-select" name="PeriodId" id="periodSelect">
+                            @foreach (var potential in Model.Periods)
+                            {
+
+                                <option data-name="@potential.Id" value="@potential.Id">@potential.Year - @potential.Term</option>
+                            }
+                        </select>
+                    </div>
+
+                    
+
+                    <div id="criteriaContainer"></div>
+
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success btn-sm" onclick="addCriteriaBlock()">
+                            <i class="bx bx-plus"></i> Kriter Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="savePotentialEvaluation">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>

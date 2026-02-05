@@ -1,0 +1,102 @@
+﻿@using PYS.Core.Application.Features.PeriodInUserFeature.Dtos
+@model IList<PYS.Core.Application.Features.PeriodInUserFeature.Dtos.PeriodInUserDto>
+@using Newtonsoft.Json
+@{
+    var periodId = ViewBag.PeriodId;
+    var periodYear = ViewBag.PeriodYear;
+    var periodTerm = ViewBag.PeriodTerm;
+}
+
+
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+        <div class="card-header flex-column flex-md-row">
+            <h5 class="mb-0">Dönem: @ViewBag.PeriodYear - @ViewBag.PeriodTerm Kişi Listesi</h5>
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <a asp-controller="Period" asp-action="DataTablePeriod" asp-route-periodId="@periodId" asp-route-periodYear="@periodYear" asp-route-periodTerm="@periodTerm" class="btn btn-primary">
+                    <i class="bx bxs-file"></i> Organizasyon
+                </a>
+            </div>
+
+            <div id="orgTree" style="width: 100%; height: 700px; overflow: auto;"></div>
+
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/orgchartjs/OrgChart.js"></script>
+
+@section Scripts {
+    
+    <script>
+        const orgData = @Html.Raw(JsonConvert.SerializeObject(Model));
+        
+
+        const nodes = [];
+
+          function flattenTree(tree) {
+              debugger;
+              tree.forEach(x => {
+                  nodes.push({
+                      id: x.PerNr,
+                      pid: x.MPernr === 0 ? null : x.MPernr,
+                      name: x.Ename,
+                      title: x.PLSTX
+                  });
+
+                  if (x.Children && x.Children.length > 0) {
+                      flattenTree(x.Children);
+                  }
+              });
+          }
+        function flattenTree(tree) {
+                 tree.forEach(x => {
+                     nodes.push({
+                         id: x.PerNr,
+                         pid: x.MPernr === 0 ? null : x.MPernr,
+                         name: x.Ename,
+                         title: x.PLSTX
+                     });
+
+                     if (x.Children && x.Children.length > 0) {
+                         flattenTree(x.Children);
+                     }
+                 });
+             }
+
+             flattenTree(orgData);
+
+              const chart = new OrgChart(document.getElementById("orgTree"), {
+                 template: "isla",
+                 enableSearch: true,                     // Arama kutusu
+                 mouseScrool: OrgChart.action.zoom,      // Scroll ile zoom
+                 scaleInitial: OrgChart.match.boundary,  // Sayfaya sığdır
+                 layout: OrgChart.tree,                  // Dikey ağaç yapısı
+                 orientation: OrgChart.orientation.top,  // Yukarıdan aşağıya çizim
+                 collapse: {
+                     level: 2,
+                     allChildren: true
+                 },
+
+                 nodeBinding: {
+                     field_0: "name",
+                     field_1: "title"
+                 },
+                // menu: {
+                //     export_pdf: {
+                //         text: "Export PDF",
+                //         icon: OrgChart.icon.pdf(24, 24, "#7A7A7A"),
+                //         onClick: pdf
+                //      },
+                // },
+                 nodes: nodes
+             });
+             OrgChart.SEARCH_PLACEHOLDER = "Ara";
+
+             function pdf() {
+                chart.exportPDF({
+                    format: "A4"
+            });
+        }
+    </script>
+}

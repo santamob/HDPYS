@@ -1,0 +1,870 @@
+﻿@using PYS.Core.Application.Features.FormTypesFeature.Dtos
+@using PYS.Web.Services
+@using PYS.Core.Domain.Enums
+@using PYS.Core.Domain.Extensions
+@using PYS.Web.ViewModels.Indicator
+@model IndicatorViewModel
+@* @model List<FormTypesDto> *@
+@{
+
+}
+
+@section Scripts {
+<script>
+
+    //form tipleri
+    let FormTypes = {
+        TARGET: ["Hedef Formları","target"],
+        COMPETENCE: ["Yetkinlik Formları","competence"],
+        POTENTIAL: ["Potansiyel Formları","potential"],
+        INTERVIEW: ["Görüşme Formları","interview"]
+    };
+
+    //modal tipi
+    let modalAction = {
+        NEW: "new",
+        COPY: "copy",
+        UPDATE: "update"
+    };
+
+    //db'ye gönderilecek yapı
+    let  model ={
+        FormTypeId: "",
+        FormTypeText:"",
+        IndicatorName:"",
+        IndicatorPeriod:"",
+        IndicatorDesc:"",
+        IndicatorDetailDesc:"",
+        IndicatorCategory:"",
+        IndicatorPlannedDesc:"",
+        IndicatorRealizedDesc:"",
+        IndicatorResultDesc:"",
+        DataSource:"",
+        DataSourceText:"",
+        DataCalculation:"",
+        DataCalculationText:"",
+        EvaluationType:"",
+        EvaluationTypeText:"",
+        IndicatorKminDesc:"",
+        IndicatorKmaxDesc:"",
+        Stages: []
+    }
+
+    let stageIndex = 0;
+
+    $(document).on('click', '.goModal', function () {
+        var modalType = $(this).data("mode");
+        var indicatorId = $(this).data("id");
+        openIndicatorModal(modalType, indicatorId);
+    });
+
+    // modal açıldığnda model temizlik ve type'a göre yönlendirme
+    function openIndicatorModal(modalType,indicatorId) {
+           
+        debugger;
+
+        model = {
+            FormTypeId: "",
+            FormTypeText:"",
+            IndicatorName:"",
+            IndicatorPeriod:"",
+            IndicatorDesc:"",
+            IndicatorDetailDesc:"",
+            IndicatorCategory:"",
+            IndicatorPlannedDesc:"",
+            IndicatorRealizedDesc:"",
+            IndicatorResultDesc:"",
+            DataSource:"",
+            DataSourceText:"",
+            DataCalculation:"",
+            DataCalculationText:"",
+            EvaluationType:"",
+            EvaluationTypeText:"",
+            IndicatorKminDesc:"",
+            IndicatorKmaxDesc:"",
+            Stages: []
+        };
+
+        $('#indicatorForm')[0].reset();
+        $('.form-type-section').addClass('d-none');
+
+        $("#stagingContainerForTargetForm, #stagingContainerForCompetenceForm , #stagingContainerForPotentialForm").empty();
+        stageIndex = 0;
+
+        if(modalType == modalAction.NEW ){
+            $("#sendIndicator").attr("modal-type","new");
+            $("#sendIndicator").text("Kaydet");
+        }
+        else if(modalType == modalAction.COPY){
+
+            $("#sendIndicator").attr("modal-type","copy");
+            $("#sendIndicator").text("Kopyalananı Kaydet");
+
+            fillIndicatorModal(indicatorId);
+
+           toastr.info("Kopyalama için açılıyor", "Bilgi");
+        }
+        else if(modalType == modalAction.UPDATE){
+            $("#sendIndicator").attr("modal-type","update");
+            $("#sendIndicator").text("Güncelle");
+
+            fillIndicatorModal(indicatorId);
+
+           toastr.info("Güncelleme için açılıyor", "Bilgi");
+        }
+
+
+        $('#indicatorModal').modal('show');
+    }
+
+    //Form tipi değiştiğide formları gösterme - kademeleri silme işlemleri
+    function onFormTypeChange(optionElement) {
+
+        debugger;
+        let id = optionElement.value;
+        let value = optionElement.getAttribute("data-name");
+
+        console.log(id);
+        console.log(value);
+
+    $('.form-type-section').addClass('d-none');
+
+    if (value === FormTypes.TARGET[0]) {
+        $('#targetFormFields').removeClass('d-none');
+        $("#sendIndicator").attr("form-type","target");
+    } else if (value ===  FormTypes.COMPETENCE[0]) {
+        $('#competenceFormFields').removeClass('d-none');
+        $("#sendIndicator").attr("form-type","competence");
+    }
+    else if (value ===  FormTypes.POTENTIAL[0]) {
+        $('#potentialFormFields').removeClass('d-none');
+        $("#sendIndicator").attr("form-type","potential");
+    }
+    else if (value ===  FormTypes.INTERVIEW[0]) {
+        $('#interviewFormFields').removeClass('d-none');
+        $("#sendIndicator").attr("form-type","interview");
+    }
+    else{
+       toastr.warning("Form Tipine Gösterge Eklenemez!", "Uyarı");
+    }
+
+    $("#stagingContainerForTargetForm, #stagingContainerForCompetenceForm , #stagingContainerForPotentialForm").empty();
+    stageIndex = 0;
+    }
+
+    //Göstergeye Kademe ekleme
+    function addStaging(type, stageObj = null) {
+        debugger;
+        if(type === FormTypes.TARGET[0]){
+        let stagingHtml = `
+        <div class="row mb-2 staging-row stageRow" data-id="Stage[${stageIndex}]">
+        <div class="col">
+            <input type="text" class="form-control" stage="StageDesc" onchange="updateStage('StageDesc')""  name="Stages[${stageIndex}].StageDesc" placeholder="Kademe Tanım" value="${stageObj ? stageObj.stageDesc : ''}">
+        </div>
+        <div class="col">
+            <input type="number" class="form-control" onchange="updateStage('stageLower')" stage="StageLower" name="Stages[${stageIndex}].StageLower" placeholder="Kademe As%" value="${stageObj ? stageObj.stageLower : ''}">
+        </div>
+        <div class="col">
+            <input type="number" class="form-control" stage="StageTop" onchange="updateStage('StageTop')" name="Stages[${stageIndex}].StageTop" placeholder="Kademe Üs%" value="${stageObj ? stageObj.stageTop : ''}">
+        </div>
+        <div class="col-auto">
+        <button type="button" class="btn btn-danger removeStagingForTarget">Sil</button>
+        </div>
+        </div>
+        `;
+
+        $('#stagingContainerForTargetForm').append(stagingHtml);
+        }
+        else if(type === FormTypes.COMPETENCE[0]){
+        let stagingHtml = `
+        <div class="row mb-2 staging-row">
+        <div class="col">
+        <input type="text" class="form-control" stage="StageDesc"  name=Stages[${stageIndex}].StageDesc" placeholder="Kademe Tanım">
+        </div>
+        <div class="col-auto">
+        <button type="button" class="btn btn-danger removeStagingForCompetence">Sil</button>
+        </div>
+        </div>
+        `;
+
+        $('#stagingContainerForCompetenceForm').append(stagingHtml);
+        }
+        else if(type === FormTypes.POTENTIAL[0]){
+        let stagingHtml = `
+        <div class="row mb-2 staging-row">
+        <div class="col">
+        <input type="text" class="form-control" stage="StageDesc" name="Stages[${stageIndex}].StageDesc" placeholder="Kademe Tanım">
+        </div>
+        <div class="col-auto">
+        <button type="button" class="btn btn-danger removeStagingForPotential">Sil</button>
+        </div>
+        </div>
+        `;
+
+        $('#stagingContainerForPotentialForm').append(stagingHtml);
+        }
+
+        stageIndex++;
+    }
+
+    //Eklenen kademeyi silme
+    $(document).on('click', '.removeStagingForTarget, .removeStagingForCompetence, .removeStagingForPotential', function () {
+    debugger;
+    var id =  $(this).closest('.staging-row').attr("data-id");
+
+    model.Stages = model.Stages.filter(s => s.id !== id);
+    $(this).closest('.staging-row').remove();
+    });
+
+    //kademe güncelleme modal içerisinde **güncellenecek.
+    function updateStage(field) {
+    debugger;
+    //alert("Değişti");
+    // var id =  $(this).closest('.staging-row').attr("data-id");
+    // const stage = model.Stages.find(s => s.id === id);
+    // if (stage) {
+    //      stage.field = $(this).val();
+    // }
+    }
+
+    //model oluşturma ve gönderme
+    $("#sendIndicator").click(function(){
+
+    var formType = $(this).attr("form-type");
+    var modalType = $(this).attr("modal-type");
+    if(formType == FormTypes.TARGET[1]){
+
+    model.FormTypeId = $('#formTypeSelect option:selected').val();
+    model.FormTypeText=$('#formTypeSelect option:selected').attr("data-name")
+    model.IndicatorName=$("#indicatorNameForTarget").val();
+    model.IndicatorPeriod=$('#periodRangeForTarget option:selected').val();
+    model.IndicatorPeriodText=$('#periodRangeForTarget option:selected').attr("data-name");
+    model.IndicatorDesc=$("#indicatorDefinitionForTarget").val();
+    model.IndicatorDetailDesc=$("#indicatorDetailDescriptionForTarget").val();
+    model.IndicatorCategory="";
+    model.IndicatorPlannedDesc=$("#indicatorPlannedDefinitionForTarget").val();
+    model.IndicatorRealizedDesc=$("#indicatorRealizedDefinitionForTarget").val();
+    model.IndicatorResultDesc=$("#indicatorResultDefinitionForTarget").val();
+    model.IndicatorDataSource=parseInt($('#indicatorDataSourceForTarget option:selected').val());
+    model.DataSourceText=$('#indicatorDataSourceForTarget option:selected').attr("data-name");
+    model.IndicatorDataCalculation=parseInt($('#indicatorDataCalculationForTarget option:selected').val());
+    model.DataCalculationText=$('#indicatorDataCalculationForTarget option:selected').attr("data-name");
+    model.IndicatorEvaluationType=parseInt($('#indicatorEvaluationTypeForTarget option:selected').val());
+    model.EvaluationTypeText=$('#indicatorEvaluationTypeForTarget option:selected').attr("data-name");
+    model.IndicatorKminDesc=0;
+    model.IndicatorKmaxDesc=0;
+    model.Stages= [];
+
+    $('#stagingContainerForTargetForm .staging-row').each(function () {
+    debugger;
+    let stage = {
+    id: $(this).attr("data-id"),
+    StageDesc: $(this).find('input[stage="StageDesc"]').val(),
+    StageLower: parseInt($(this).find('input[stage="StageLower"]').val()),
+    StageTop: parseInt($(this).find('input[stage="StageTop"]').val())
+    };
+    model.Stages.push(stage);
+    });
+
+    }
+    else if(formType == FormTypes.COMPETENCE[1]){
+
+    model.FormTypeId = $('#formTypeSelect option:selected').val();
+    model.FormTypeText=$('#formTypeSelect option:selected').attr("data-name")
+    model.IndicatorName=$("#indicatorNameForCompetence").val();
+    model.IndicatorPeriod=$('#periodRangeForCompetence option:selected').val();
+    model.IndicatorPeriodText=$('#periodRangeForCompetence option:selected').attr("data-name");
+    model.IndicatorDesc=$("#indicatorDefinitionForCompetence").val();
+    model.IndicatorDetailDesc=$("#indicatorDescriptionForCompetence").val();
+    model.IndicatorCategory=$("#indicatorCategoryForCompetence").val();
+    model.IndicatorPlannedDesc="";
+    model.IndicatorRealizedDesc="";
+    model.IndicatorResultDesc="";
+    model.IndicatorDataSource=0;
+    model.DataSourceText="";
+    model.IndicatorDataCalculation=0;
+    model.DataCalculationText="";
+    model.IndicatorEvaluationType=0;
+    model.EvaluationTypeText="";
+    model.IndicatorKminDesc= parseFloat($("#indicatorStagingMinForCompetence").val());
+    model.IndicatorKmaxDesc= parseFloat($("#indicatorStagingMaxForCompetence").val());
+    model.Stages= [];
+
+    $('#stagingContainerForCompetenceForm .staging-row').each(function () {
+    debugger;
+    let stage = {
+    id: $(this).attr("data-id"),
+    StageDesc: $(this).find('input[stage="StageDesc"]').val(),
+    StageLower:0,
+    StageTop: 0
+    };
+    model.Stages.push(stage);
+    });
+    }
+    else if(formType == FormTypes.POTENTIAL[1]){
+
+    model.FormTypeId = $('#formTypeSelect option:selected').val();
+    model.FormTypeText=$('#formTypeSelect option:selected').attr("data-name")
+    model.IndicatorName=$("#indicatorNameForPotential").val();
+    model.IndicatorPeriod=$('#periodRangeForPotential option:selected').val();
+    model.IndicatorPeriodText=$('#periodRangeForPotential option:selected').attr("data-name");
+    model.IndicatorDesc=$("#indicatorDefinitionForPotential").val();
+    model.IndicatorDetailDesc=$("#indicatorDescriptionForPotential").val();
+    model.IndicatorCategory=$("#indicatorCategoryForPotential").val();
+    model.IndicatorPlannedDesc="";
+    model.IndicatorRealizedDesc="";
+    model.IndicatorResultDesc="";
+    model.IndicatorDataSource=0;
+    model.DataSourceText="";
+    model.IndicatorDataCalculation=0;
+    model.DataCalculationText="";
+    model.IndicatorEvaluationType=0;
+    model.EvaluationTypeText="";
+    model.IndicatorKminDesc= parseFloat($("#indicatorStagingMinForPotential").val());
+    model.IndicatorKmaxDesc= parseFloat($("#indicatorStagingMaxForPotential").val());
+    model.Stages= [];
+
+    $('#stagingContainerForPotentialForm .staging-row').each(function () {
+    debugger;
+    let stage = {
+    id: $(this).attr("data-id"),
+    StageDesc: $(this).find('input[stage="StageDesc"]').val(),
+    StageLower:0,
+    StageTop: 0
+    };
+    model.Stages.push(stage);
+    });
+    }
+    else if(formType == FormTypes.INTERVIEW[1]){
+
+    model.FormTypeId = $('#formTypeSelect option:selected').val();
+    model.FormTypeText=$('#formTypeSelect option:selected').attr("data-name")
+    model.IndicatorName=$("#indicatorNameForInterview").val();
+    model.IndicatorPeriod=$('#periodRangeForInterview option:selected').val();
+    model.IndicatorPeriodText=$('#periodRangeForInterview option:selected').attr("data-name");
+    model.IndicatorDesc=$("#indicatorDefinitionForInterview").val();
+    model.IndicatorDetailDesc="";
+    model.IndicatorCategory="";
+    model.IndicatorPlannedDesc="";
+    model.IndicatorRealizedDesc="";
+    model.IndicatorResultDesc="";
+    model.IndicatorDataSource=0;
+    model.DataSourceText="";
+    model.IndicatorDataCalculation=0;
+    model.DataCalculationText="";
+    model.IndicatorEvaluationType=0;
+    model.EvaluationTypeText="";
+    model.IndicatorKminDesc= 0;
+    model.IndicatorKmaxDesc= 0;
+    model.Stages= [];
+    }
+
+
+    saveIndicatorModel(model,modalType);
+
+    });
+
+    //data modal'a basılacak
+    function fillIndicatorModal(indicatorId) {
+      debugger;
+        $.ajax({
+            url: '/Indicators/GetIndicatorById?id=' + indicatorId,
+            type: 'GET',
+            success: function (data) {
+                debugger;
+              if (!data) {
+               toastr.error("Gösterge Bulunamadı", "Hata");
+                return;
+              }
+
+             $('#formTypeSelect').val(data.formTypeId).trigger('change');
+
+              if (data.formTypeText === FormTypes.TARGET[0]) {
+
+                $('#indicatorNameForTarget').val(data.indicatorName);
+                $('#periodRangeForTarget').val(data.indicatorPeriod);
+                $('#indicatorDetailDescriptionForTarget').val(data.indicatorDesc);
+                $('#indicatorDefinitionForTarget').val(data.indicatorDetailDesc);
+                $('#indicatorPlannedDefinitionForTarget').val(data.indicatorPlannedDesc);
+                $('#indicatorRealizedDefinitionForTarget').val(data.indicatorRealizedDesc);
+                $('#indicatorResultDefinitionForTarget').val(data.indicatorResultDesc);
+                debugger;
+                $('#indicatorDataSourceForTarget').val(data.dataSource);
+                $('#indicatorDataCalculationForTarget').val(data.dataCalculation);
+                $('#indicatorEvaluationTypeForTarget').val(data.evaluationType);
+
+                $('#stagingContainerForTargetForm').html("");
+                
+                data.stages.forEach(function(stage, i) {
+                    debugger;
+                    addStaging(FormTypes.TARGET[0], stage);
+                
+                });
+
+              }
+              else if (data.formTypeText === FormTypes.COMPETENCE[0]){
+
+              }
+              else if (data.formTypeText === FormTypes.POTENTIAL[0]){
+
+              }
+              else if (data.formTypeText === FormTypes.INTERVIEW[0]){
+
+              }
+
+            },
+            error: function () {  
+              toastr.error("Gösterge yüklenirken hata oluştu", "Hata");
+            }
+        });
+    }
+
+    function saveIndicatorModel(model,modalType) {
+    debugger;
+    // if (!model.FormTypeId || !model.IndicatorName || !model.IndicatorPeriod || !model.IndicatorDesc) {
+    // alert("Lütfen zorunlu alanları doldurun.");
+    // return;
+    // }
+
+    console.log(model);
+
+
+    // if (!model.DataSource || !model.DataCalculation || !model.EvaluationType) {
+    //  alert("Veri Kaynağı, Hesaplama ve Değerlendirme türü boş olamaz.");
+    //  return;
+    // }
+
+    if(modalType == modalAction.NEW || modalType == modalAction.COPY){
+
+        $.ajax({
+        url: '/Indicators/CreateIndicator',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(model),
+        success: function (res) {
+          
+            toastr.info("Gösterge kaydedildi.", "Bilgi");
+            $('#indicatorModal').modal('hide');
+        setTimeout(function(){
+              window.location.reload(); // sonra partial view ile sadece tabloyu yenileme yapılacak**
+        }, 5000); 
+        },
+        error: function (xhr) {
+            alert("Hata oluştu: " + xhr.responseText);
+            toastr.error("Bir hata oluştu", "Hata");
+        }
+        });
+        }
+        else if(modalType == modalAction.UPDATE){
+           toastr.info("Düzenlenecek alan!!", "Bilgi"); 
+        }
+
+
+    }
+
+    function openExcelUploadModal() {
+    $('#excelUploadModal').modal('show');
+    }
+
+    $('#excelUploadForm').on('submit', function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+    // $.ajax({
+    //     url: '/Indicators/UploadExcel', 
+    //     type: 'POST',
+    //     data: formData,
+    //     processData: false,
+    //     contentType: false,
+    //     success: function (response) {
+    //         alert("Yükleme başarılı!");
+    //         $('#excelUploadModal').modal('hide');
+    //         location.reload(); 
+    //     },
+    //     error: function (xhr) {
+    //         alert("Hata: " + xhr.responseText);
+    //     }
+    // });
+    });
+
+
+</script>
+}
+
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">IK Yönetim Paneli /</span> Göstergeler
+</h4>
+
+<!-- begin: Ana yapı -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0"></h5>
+        <div class="d-flex gap-2">
+            <a href="javascript:void(0);" class="btn btn-sm btn-success" onclick="openExcelUploadModal()">
+                <i class="bx bx-upload"></i> Excel Yükle
+            </a>
+            <a href="javascript:void(0);" class="btn btn-sm btn-primary goModal" data-mode="new">
+                <i class="bx bx-plus"></i> Yeni Gösterge Ekle
+            </a>
+        </div>
+    </div>
+
+    <div class="table table-hover table-fixed text-wrap">
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Form Tipi</th>
+                    <th>Gösterge Adı</th>
+                    <th>Yıllık Periyot</th>
+                    <th>Gösterge Tanımı</th>
+                    <th>Gösterge Açıklaması</th>
+                    <th>Veri Kaynağı</th>
+                    <th>Veri Hesaplama</th>
+                    <th>Değerlendirme Türü</th>
+                    <th>İşlem</th>
+
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var indicator in Model.Indicator)
+                {
+                    @* var a = Model.Indicator; *@
+                    <tr name="@indicator.Id">
+                        <td>@indicator.FormTypeText</td>
+                        <td>@indicator.IndicatorName</td>
+                        <td>@indicator.IndicatorPeriodText</td>
+                        <td>@indicator.IndicatorDesc</td>
+                        <td>@indicator.IndicatorDetailDesc</td>
+                        <td>@indicator.DataSourceText</td>
+                        <td>@indicator.DataCalculationText</td>
+                        <td>@indicator.EvaluationTypeText</td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item goModal" href="javascript:void(0);" data-id="@indicator.Id" data-mode="update"><i class="bx bx-edit-alt me-1"></i>Güncelle</a>
+                                    <a class="dropdown-item goModal" href="javascript:void(0);" data-id="@indicator.Id" data-mode="copy"><i class="bx bx-edit-alt me-1"></i> Kopyala</a>
+                                    <a class="dropdown-item" href="javascript:void(0);" data-id="@indicator.Id"><i class="bx bx-edit-alt me-1"></i> Sil</a>
+                                </div>
+                            </div>
+
+                        </td>
+
+                    </tr>
+                }
+             
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- end: Ana yapı -->
+
+
+<!-- begin: Gösterge Ekle Modal -->
+<div class="modal fade" id="indicatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <form id="indicatorForm" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bx bx-bar-chart-plus me-2 "></i>Yeni Gösterge Ekle
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">Form Tipi</label>
+                        <select class="form-select" id="formTypeSelect" name="FormType" onchange="onFormTypeChange(this.options[this.selectedIndex])">
+                            <option value="">Seçiniz</option>
+                            @foreach (var form in Model.FormTypes)
+                            {
+                                <option data-name="@form.FormTypeName" value="@form.Id">@form.FormTypeName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div id="targetFormFields" class="form-type-section d-none">
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Adı</label>
+                                <input type="text" id="indicatorNameForTarget" class="form-control indicatorNameForTarget" name="IndicatorNameForTarget">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Yıllık Periyot</label>
+                                <select class="form-select periodRangeForTarget" id="periodRangeForTarget" name="PeriodRangeForTarget">
+                                    <option value="">Seçiniz</option>
+                                    @foreach (PeriodRangeTargetForIndicators type in Enum.GetValues(typeof(PeriodRangeTargetForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="m-3" />
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Tanımı</label>
+                                <textarea class="form-control indicatorDefinitionForTarget" id="indicatorDefinitionForTarget" name="IndicatorDefinitionForTarget" rows="2"></textarea>
+                               
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Açıklaması</label>
+                                <textarea class="form-control indicatorDetailDescriptionForTarget" id="indicatorDetailDescriptionForTarget" name="IndicatorDetailDescriptionForTarget" rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="m-3" />
+
+                        <div class="row g-3">
+                            <div class="col mb-0">
+                                <label class="form-label">Planlanan Tanımı</label>
+                                <input type="text" class="form-control indicatorPlannedDefinitionForTarget" id="indicatorPlannedDefinitionForTarget" name="IndicatorPlannedDefinitionForTarget">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Gerçekleşen Tanımı</label>
+                                <input type="text" class="form-control indicatorRealizedDefinitionForTarget" id="indicatorRealizedDefinitionForTarget" name="IndicatorRealizedDefinitionForTarget">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Sonuç Tanımı</label>
+                                <input type="text" class="form-control indicatorResultDefinitionForTarget" id="indicatorResultDefinitionForTarget" name="IndicatorResultDefinitionForTarget">
+                            </div>
+                        </div>
+
+                        <hr class="m-3" />
+
+                        <div class="row g-3">
+                            <div class="col mb-0">
+                                <label class="form-label">Veri Kaynağı</label>
+                                <select class="form-select indicatorDataSourceForTarget" id="indicatorDataSourceForTarget" name="IndicatorDataSourceForTarget">
+                                    <option value="">Seçiniz</option>
+                                    @foreach (DataSourceTypeForIndicators type in Enum.GetValues(typeof(DataSourceTypeForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Veri Hesaplama</label>
+                                <select class="form-select indicatorDataCalculationForTarget" id="indicatorDataCalculationForTarget" name="IndicatorDataCalculationForTarget">
+                                    <option value="">Seçiniz</option>
+                                    @foreach (DataCalculationForIndicators type in Enum.GetValues(typeof(DataCalculationForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Değerlendirme Türü</label>
+                                <select class="form-select indicatorEvaluationTypeForTarget" id="indicatorEvaluationTypeForTarget" name="IndicatorEvaluationTypeForTarget">
+                                    <option value="">Seçiniz</option>
+                                    @foreach (EvaluationTypeForIndicators type in Enum.GetValues(typeof(EvaluationTypeForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="m-3" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Kademelendirme Tanımları</label>
+                            <div id="stagingContainerForTargetForm"></div>
+                            <button type="button" class="btn rounded-pill btn-success btn-sm mt-2" onclick="addStaging(FormTypes.TARGET[0])">+ Hedef Formu için Kademe Ekle</button>
+                        </div>
+                    </div>
+
+                    <div id="competenceFormFields" class="form-type-section d-none">
+                        
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Adı</label>
+                                <input type="text" class="form-control indicatorNameForCompetence" id="indicatorNameForCompetence" name="IndicatorNameForCompetence">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Yıllık Periyot</label>
+                                <select class="form-select periodRangeForCompetence" id="periodRangeForCompetence" name="PeriodRangeForCompetence">
+                                    @foreach (PeriodRangeCompetencePotentialInterviewForIndicators type in Enum.GetValues(typeof(PeriodRangeCompetencePotentialInterviewForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <hr class="m-3" />
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Tanımı</label>
+                                <textarea class="form-control indicatorDefinitionForCompetence" id="indicatorDefinitionForCompetence" name="IndicatorDefinitionForCompetence" rows="2"></textarea>
+
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Açıklaması</label>
+                                <textarea class="form-control indicatorDescriptionForCompetence" id="indicatorDescriptionForCompetence" name="IndicatorDescriptionForCompetence" rows="2"></textarea>
+                            </div>
+                        </div>
+
+
+                        <hr class="m-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Gösterge Kategorisi</label>
+                            <textarea class="form-control indicatorCategoryForCompetence" id="indicatorCategoryForCompetence" name="IndicatorCategoryForCompetence" rows="2"></textarea>
+                        </div>
+
+                        <hr class="m-3" />
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Kmin Açıklama</label>
+                                <input type="text" class="form-control indicatorStagingMinForCompetence" id="indicatorStagingMinForCompetence" name="IndicatorStagingMinForCompetence" placeholder="KMin Açıklama">
+
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">KMax Açıklama</label>
+                                <input type="text" class="form-control indicatorStagingMaxForCompetence" id="indicatorStagingMaxForCompetence" name="IndicatorStagingMaxForCompetence" placeholder="KMax Açıklama">
+                            </div>
+                        </div>
+                        <hr class="m-3" />
+                        <div class="mb-3">
+                            <label class="form-label">Kademelendirme Tanımları</label>
+                            <div id="stagingContainerForCompetenceForm"></div>
+                            <button type="button" class="btn rounded-pill btn-success btn-sm mt-2" onclick="addStaging(FormTypes.COMPETENCE[0])">+ Yetkinlik Formu için Kademe Ekle</button>
+                        </div>
+                      
+                    </div>
+
+                    <div id="potentialFormFields" class="form-type-section d-none">
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Adı</label>
+                                <input type="text" class="form-control indicatorNameForPotential" id="indicatorNameForPotential" name="IndicatorNameForPotential">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Yıllık Periyot</label>
+                                <select class="form-select periodRangeForPotential" id="periodRangeForPotential" name="PeriodRangeForPotential">
+                                    @foreach (PeriodRangeCompetencePotentialInterviewForIndicators type in Enum.GetValues(typeof(PeriodRangeCompetencePotentialInterviewForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <hr class="m-3" />
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Tanımı</label>
+                                <textarea class="form-control indicatorDefinitionForPotential" id="indicatorDefinitionForPotential" name="IndicatorDefinitionForPotential" rows="2"></textarea>
+
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Açıklaması</label>
+                                <textarea class="form-control indicatorDescriptionForPotential" id="indicatorDescriptionForPotential" name="IndicatorDescriptionForPotential" rows="2"></textarea>
+                            </div>
+                        </div>
+
+
+                        <hr class="m-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Gösterge Kategorisi</label>
+                            <textarea class="form-control indicatorCategoryForPotential" id="indicatorCategoryForPotential" name="IndicatorCategoryForPotential" rows="2"></textarea>
+                        </div>
+
+                        <hr class="m-3" />
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Kmin Açıklama</label>
+                                <input type="text" class="form-control indicatorStagingMinForPotential" id="indicatorStagingMinForPotential" name="IndicatorStagingMinForPotential" placeholder="KMin Açıklama">
+
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">KMax Açıklama</label>
+                                <input type="text" class="form-control indicatorStagingMaxForPotential" id="indicatorStagingMaxForPotential" name="IndicatorStagingMaxForPotential" placeholder="KMax Açıklama">
+                            </div>
+                        </div>
+                        <hr class="m-3" />
+                        <div class="mb-3">
+                            <label class="form-label">Kademelendirme Tanımları</label>
+                            <div id="stagingContainerForPotentialForm"></div>
+                            <button type="button" class="btn rounded-pill btn-success btn-sm mt-2" onclick="addStaging(FormTypes.POTENTIAL[0])">+ Potansiyel Form için Kademe Ekle</button>
+                        </div>
+
+                    </div>
+
+                    <div id="interviewFormFields" class="form-type-section d-none">
+
+                        <div class="row g-2">
+                            <div class="col mb-0">
+                                <label class="form-label">Gösterge Adı</label>
+                                <input type="text" class="form-control indicatorNameForInterview" id="indicatorNameForInterview" name="IndicatorNameForInterview">
+                            </div>
+                            <div class="col mb-0">
+                                <label class="form-label">Yıllık Periyot</label>
+                                <select class="form-select periodRangeForInterview" id="periodRangeForInterview" name="PeriodRangeForInterview">
+                                    @foreach (PeriodRangeCompetencePotentialInterviewForIndicators type in Enum.GetValues(typeof(PeriodRangeCompetencePotentialInterviewForIndicators)))
+                                    {
+                                        <option data-name="@type.GetDisplayName()" value="@((int)type)">@type.GetDisplayName()</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <hr class="m-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Gösterge Tanımı</label>
+                            <textarea class="form-control indicatorDefinitionForInterview" id="indicatorDefinitionForInterview" name="IndicatorDefinitionForInterview" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="sendIndicator" class="btn btn-primary">Kaydet</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- end: Gösterge Ekle Modal -->
+
+<!-- begin: Excel Yükleme Modal -->
+<div class="modal fade" id="excelUploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="excelUploadForm" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Excel ile Gösterge Yükle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Excel Dosyası Seçin (.xlsx)</label>
+                        <input type="file" name="file" accept=".xlsx" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Yükle</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- end: Excel Yükleme Modal -->

@@ -1,0 +1,141 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.UserFeature.Dtos
+@model List<SAPUserDto>
+@section Scripts {
+    <script>
+        $(document).on('click', '.btn-detail', function () {
+            debugger;
+            var perNr = $(this).data('user-pernr');
+           $.ajax({
+                url: '/OrganizationTree/GetUserDetail',
+                type: 'GET',
+                data: { perNr: perNr },
+                success: function (data) {
+                    debugger;
+                    $('#modalPerNo').val(data.pernr);
+                    $('#modalPerNameSurname').val(data.ename);
+                    $('#modalPerOrgtx').val(data.accAsgmntT);
+                    $('#modalPerPlstx').val(data.plstx);
+                    $('#modalPerAccAsgmnt').val(data.orgtx);
+                    $('#modalPerManNameSurname').val(data.managerName || "Yok");
+                    $('#modalPerGbDat').val(data.gbDat );
+                    $('#modalPerIsbas').val(data.isbas);
+                    $('#userDetailModal').modal('show');
+                },
+                error: function () {
+                    alert("Kullanıcı bulunamadı.");
+                }
+        });
+        });
+    </script>
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">Organizasyon /</span> Canlı Organizasyon Listesi
+</h4>
+
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+        <div class="card-header flex-column flex-md-row">
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <a asp-controller="OrganizationTree" asp-action="TreeView" class="btn btn-sm btn-primary ">
+                    <i class="bx bx-git-branch"></i> Organizasyon Ağacı
+                </a>
+
+
+
+            </div>
+        </div>
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead>
+                <tr>
+                    <th>Sicil No</th>
+                    <th>Ad Soyad</th>
+                    <th>Mail</th>
+                    <th>Yönetici</th>
+                    <th>Direktörlük</th>
+                    <th>Pozisyon</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+
+            <tbody class="table-border-bottom-0">
+                @foreach (var user in Model)
+                {
+
+                    <tr>
+                       
+                        <td>@user.Pernr</td>
+                        <td>@user.Ename</td>
+                        <td>@user.Mail</td>
+                        <td>@user.ManagerName</td>
+                        <td>@user.AccAsgmntT</td>
+                        <td>@user.Plstx</td>
+                        <td>
+                            <a  data-user-pernr="@user.Pernr" class="btn btn-icon btn-outline-primary btn-detail" data-bs-toggle="modal" data-bs-target="#userDetailModal" title="İncele">
+                                <i class='bx bx-show'></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* Modal Detayları *@
+
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailModalLabel">Kullanıcı Detayı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <div id="userDetailContent">
+                    <div class="row g-2">
+                        <div class="col mb-0">
+                            <label class="form-label">Sicil No</label>
+                            <input type="text" class="form-control" id="modalPerNo" readonly />
+                        </div>
+                        <div class="col mb-0">
+                            <label class="form-label">Ad Soyad</label>
+                            <input type="text" class="form-control" id="modalPerNameSurname"  readonly/>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col mb-0">
+                            <label class="form-label">Birim</label>
+                            <input type="text" class="form-control" id="modalPerOrgtx" readonly />
+                        </div>
+                        <div class="col mb-0">
+                            <label class="form-label">Pozisyon</label>
+                            <input type="text" class="form-control" id="modalPerPlstx" readonly/>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col mb-0">
+                            <label class="form-label">Departman</label>
+                            <input type="text" class="form-control" id="modalPerAccAsgmnt" readonly />
+                        </div>
+                        <div class="col mb-0">
+                            <label class="form-label">Yönetici Ad Soyad</label>
+                            <input type="text" class="form-control" id="modalPerManNameSurname" readonly />
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col mb-0">
+                            <label class="form-label">Doğum Tarihi</label>
+                            <input type="text" class="form-control" id="modalPerGbDat" readonly />
+                        </div>
+                        <div class="col mb-0">
+                            <label class="form-label">İşe Başlangıç Tarihi</label>
+                            <input type="text" class="form-control" id="modalPerIsbas" readonly/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

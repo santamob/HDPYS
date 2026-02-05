@@ -1,0 +1,12 @@
+﻿@using PYS.Web.Models
+@using PYS.Web.Services
+@model ErrorViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Error";
+}
+
+@Model.ErrorMessage
+<br />
+@Model.StatusCode
+<br />

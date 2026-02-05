@@ -1,0 +1,160 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.UserFeature.Dtos
+@model UserUpdateDto
+@{
+    string PlaseEnterContent = localization.GetKey("PlaseEnterContent").Value;
+}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4">
+        <span class="text-muted fw-light"><a asp-action="Index">@localization.GetKey("UserManagement").Value</a> /</span> @localization.GetKey("User").Value @localization.GetKey("Update").Value
+    </h4>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <form asp-controller="User" asp-action="Update" method="post" enctype="multipart/form-data" onsubmit="return handleFormSubmi(event)">
+                    <div asp-validation-summary="All" style="color:red"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label asp-for="Email" id="defaultFormControlInput" class="form-label">@localization.GetKey("Email").Value</label>
+                                    <input asp-for="Email" type="email" class="form-control" id="email" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <div class="col-md-2" style="margin-top:1.9rem !important">
+                                    <a onclick="getEmployee()" class="btn btn-primary btn-block" style="color:white">
+                                        <i class="bx bx-search"></i>
+                                        @localization.GetKey("Search").Value
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="RegistrationNumber" id="defaultFormControlInput" class="form-label">@localization.GetKey("RegistrationNumber").Value</label>
+                                    <input asp-for="RegistrationNumber" type="text" class="form-control mb-3" id="registrationNumber" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" readonly required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="FirstName" id="defaultFormControlInput" class="form-label">@localization.GetKey("Name").Value *</label>
+                                    <input asp-for="FirstName" type="text" class="form-control mb-3" id="name" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" readonly required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="LastName" id="defaultFormControlInput" class="form-label">@localization.GetKey("Surname").Value *</label>
+                                    <input asp-for="LastName" type="text" class="form-control mb-3" id="surname" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" readonly required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Position" id="defaultFormControlInput" class="form-label">@localization.GetKey("Position").Value *</label>
+                                    <input asp-for="Position" type="text" class="form-control mb-3" id="position" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" readonly required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Unit" id="defaultFormControlInput" class="form-label">@localization.GetKey("Unit").Value *</label>
+                                    <input asp-for="Unit" type="text" class="form-control mb-3" id="unit" placeholder="@PlaseEnterContent" aria-describedby="defaultFormControlHelp" readonly required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Password" id="defaultFormControlInput" class="form-label">@localization.GetKey("Password").Value *</label>
+                            <input asp-for="Password" value="Sf12345**" type="text" class="form-control mb-3" id="defaultFormControlInput" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" aria-describedby="defaultFormControlHelp" required>
+                        </div>
+                        <div class="custom-control custom-checkbox mt-3 mb-3">
+                            <input type="checkbox" asp-for="IsLDAP" class="form-check-input" id="IsLDAP" name="IsLDAP">
+                            <label class="form-check-label" for="IsLDAP">
+                                LDAP
+                            </label>
+                        </div>
+                        <label class="form-label">@localization.GetKey("Role").Value *</label>
+                        <div>
+                            @foreach (var role in Model.Roles.OrderBy(r => r.Name))
+                            {
+                                <div class="form-check form-check-inline mb-3">
+                                    <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role.Id" @(Model.SelectedRoles != null && Model.SelectedRoles.Contains(role.Id) ? "checked" : "")>
+                                    <label class="form-check-label">@role.Name</label>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary btn-block">@localization.GetKey("Save").Value</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function getEmployee() {
+        return new Promise((resolve, reject) => {
+            var email = document.getElementById('email').value;
+            var registrationNumber = document.getElementById('registrationNumber').value;
+
+            fetch('@Url.Action("GetEmployee", "User")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() // Include the anti-forgery token
+                },
+                body: JSON.stringify({ email: email, registrationNumber: registrationNumber })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('name').value = data.name;
+                        document.getElementById('surname').value = data.surname;
+                        document.getElementById('registrationNumber').value = data.registrationNumber;
+                        document.getElementById('position').value = data.position;
+                        document.getElementById('unit').value = data.unit;
+
+                        document.getElementById('name').readOnly = true;
+                        document.getElementById('surname').readOnly = true;
+                        document.getElementById('registrationNumber').readOnly = true;
+                        document.getElementById('unit').readOnly = true;
+                        document.getElementById('position').readOnly = true;
+
+                        resolve(); 
+                    } else {
+                        document.getElementById('name').value = "";
+                        document.getElementById('surname').value = "";
+                        document.getElementById('position').value = "";
+                        document.getElementById('unit').value = "";
+                        document.getElementById('registrationNumber').value = 0;
+                        Swal.fire({
+                            title: data.title,
+                            text: data.message,
+                            icon: "warning",
+                        });
+                        reject(); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    reject(); 
+                });
+        });
+    }
+    function handleFormSubmit(event) {
+        event.preventDefault(); 
+
+        getEmployee().then(() => {
+            event.target.submit();
+        }).catch(() => {
+        });
+
+        return false;
+    }
+</script>

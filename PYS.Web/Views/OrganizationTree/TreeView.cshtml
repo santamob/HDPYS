@@ -1,0 +1,80 @@
+﻿@model List<OrgTreeNode>
+@using Newtonsoft.Json
+@using PYS.Core.Application.Features.UserFeature.Dtos
+
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">IK Yönetim Paneli /</span> Organizasyon Ağacı
+</h4>
+
+
+
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+        <div class="card-header flex-column flex-md-row">
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <a asp-controller="OrganizationTree" asp-action="Index" class="btn btn-sm btn-primary">
+                    <i class="bx bxs-file"></i> Organizasyon
+                </a>
+            </div>
+
+           <div id="orgTree" style="width: 100%; height: 700px; overflow: auto;"></div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/orgchartjs/OrgChart.js"></script>
+
+<script>
+    const orgData = @Html.Raw(JsonConvert.SerializeObject(Model));
+
+      // OrgChart düz liste istiyor, biz modelden map'le düzleştiriyoruz
+      const nodes = [];
+
+      function flattenTree(tree) {
+          tree.forEach(x => {
+              nodes.push({
+                  id: x.PerNr,
+                  pid: x.MPernr === 0 ? null : x.MPernr,
+                  name: x.FullName,
+                  title: x.Title
+              });
+
+              if (x.Children && x.Children.length > 0) {
+                  flattenTree(x.Children);
+              }
+          });
+      }
+
+      flattenTree(orgData);
+
+       const chart = new OrgChart(document.getElementById("orgTree"), {
+          template: "isla",                      
+          enableSearch: true,                     // Arama kutusu
+          mouseScrool: OrgChart.action.zoom,      // Scroll ile zoom
+          scaleInitial: OrgChart.match.boundary,  // Sayfaya sığdır
+          layout: OrgChart.tree,                  // Dikey ağaç yapısı
+          orientation: OrgChart.orientation.top,  // Yukarıdan aşağıya çizim
+          collapse: {
+              level: 2,                            // 2. seviyeden sonrakileri otomatik gizle
+              allChildren: true
+          },
+          nodeBinding: {
+              field_0: "name",
+              field_1: "title"
+          },
+    //           nodeMenu: {
+    //     pdfpreview: {text: "PDF Preview from here"}
+    // },
+    //     menu: {
+    //     pdfpreview: { text: "PDF Preview" }
+    // },
+
+              nodes: nodes
+      });
+      OrgChart.SEARCH_PLACEHOLDER = "Ara";
+
+</script>
+

@@ -1,0 +1,7 @@
+-db backup
+-canlýya eklenecek tablolar
+-canlý sistem full backup uygulama
+
+
+- yeni versiyon kopyalama 
+- geçmiþ yýl datalarýnýn görülmesi için tanýmlama

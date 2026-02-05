@@ -1,0 +1,146 @@
+﻿@using PYS.Web.Services
+@{
+    
+}
+
+<div class="text-center">
+   
+    <p>Değerlendirme Formları</p>
+</div>
+
+<div class="card mt-4">
+   
+    <div class="card-body">
+        <!-- Üst Sekmeler -->
+        <div class="list-group list-group-horizontal-md text-md-center" id="form-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active"
+               id="tab-own-forms"
+               data-bs-toggle="list"
+               href="#content-own-forms"
+               role="tab">
+                Kendime Ait Formlar
+            </a>
+
+            <a class="list-group-item list-group-item-action"
+               id="tab-sub-forms"
+               data-bs-toggle="list"
+               href="#content-sub-forms"
+               role="tab">
+                Astlarıma Ait Formlar
+            </a>
+
+            <a class="list-group-item list-group-item-action"
+               id="tab-sub-sub-forms"
+               data-bs-toggle="list"
+               href="#content-sub-sub-forms"
+               role="tab">
+                Astımın Astlarına Ait Formlar
+            </a>
+        </div>
+
+        <!-- Üst Sekme İçerikleri -->
+        <div class="tab-content mt-3" id="form-tab-content">
+
+            <!--  Kendime Ait Formlar  -->
+            <div class="tab-pane fade show active bg-light" id="content-own-forms" role="tabpanel">
+               
+                <!-- ALT SEKME: Hedef / Yetkinlik / Sonuç -->
+                <div class="list-group list-group-horizontal-sm text-sm-center" id="inner-tabs" role="tablist">
+                    <a class="list-group-item list-group-item-action active"
+                       data-bs-toggle="list"
+                       href="#tab-goal"
+                       role="tab">
+                        Hedef Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-competency"
+                       role="tab">
+                        Yetkinlik Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-result"
+                       role="tab">
+                        Sonuç
+                    </a>
+                </div>
+
+                <!-- ALT SEKME İÇERİKLERİ -->
+                <div class="tab-content" id="inner-tab-content">
+                    <div class="tab-pane fade show active" id="tab-goal" role="tabpanel">
+                        <p>🎯 Hedef formu içeriği buraya gelecek.</p>
+                    </div>
+                    <div class="tab-pane fade" id="tab-competency" role="tabpanel">
+                        <p>🧠 Yetkinlik formu içeriği buraya gelecek.</p>
+                    </div>
+                    <div class="tab-pane fade" id="tab-result" role="tabpanel">
+                        <p>✅ Sonuç içeriği buraya gelecek.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diğer Üst Sekmeler (boş) -->
+            <div class="tab-pane fade" id="content-sub-forms" role="tabpanel">
+                <!-- ALT SEKME: Hedef / Yetkinlik / Sonuç -->
+                <div class="list-group list-group-horizontal-sm text-sm-center" id="inner-tabs" role="tablist">
+                    <a class="list-group-item list-group-item-action active"
+                       data-bs-toggle="list"
+                       href="#tab-ast-goal"
+                       role="tab">
+                        Hedef Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-ast-competency"
+                       role="tab">
+                        Yetkinlik Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-ast-competency"
+                       role="tab">
+                        Potansiyel Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-ast-competency"
+                       role="tab">
+                        Görüşme Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-ast-competency"
+                       role="tab">
+                        Yönlendirme Formları
+                    </a>
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#tab-ast-result"
+                       role="tab">
+                        Sonuç
+                    </a>
+                </div>
+
+                <!-- ALT SEKME İÇERİKLERİ -->
+                <div class="tab-content" id="inner-tab-content">
+                    <div class="tab-pane fade show active" id="tab-ast-goal" role="tabpanel">
+                        <p>🎯 Hedef formu içeriği buraya gelecek AST.</p>
+                    </div>
+                    <div class="tab-pane fade" id="tab-ast-competency" role="tabpanel">
+                        <p>🧠 Yetkinlik formu içeriği buraya gelecek AST.</p>
+                    </div>
+                    <div class="tab-pane fade" id="tab-ast-result" role="tabpanel">
+                        <p>✅ Sonuç içeriği buraya gelecek AST.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="content-sub-sub-forms" role="tabpanel">
+                <p>Astımın astlarına ait formlar sekmesi</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+

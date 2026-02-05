@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SantaFarma.Architecture.Core.Application" Version="1.2.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PYS.Core.Domain\PYS.Core.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\CategoryFeature\Commands\UpdateCategory\" />
+    <Folder Include="Features\FormsFeature\Rules\" />
+    <Folder Include="Features\IndicatorFeature\Rules\" />
+    <Folder Include="Features\LocationsFeature\Commands\" />
+    <Folder Include="Features\LocationsFeature\Rules\" />
+    <Folder Include="Features\PeriodInUserFeature\Rules\" />
+    <Folder Include="Features\PeriodsFeature\Rules\" />
+    <Folder Include="Features\PotentialEvaluationFeature\Rules\" />
+  </ItemGroup>
+
+</Project>

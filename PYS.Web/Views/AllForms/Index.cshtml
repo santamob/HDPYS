@@ -1,0 +1,439 @@
+﻿@using PYS.Web.Services
+@using PYS.Web.ViewModels.AllForms
+@model AllFormsViewModel
+
+@section Scripts {
+<script>
+
+    let FormTypes = {
+    TARGET: ["Hedef Formları","target"],
+    COMPETENCE: ["Yetkinlik Formları","competence"],
+    POTENTIAL: ["Potansiyel Formları","potential"],
+    INTERVIEW: ["Görüşme Formları","interview"],
+    GUIDANCE: ["Yönlendirme Formları", "guidance"]
+    };
+
+    let indicatorRowIndex = 0; // gösterge eklemek için
+
+    let model = {
+    FormTypeId:"",
+    FormTypeText:"",
+    FormName:"",
+    TotalWeight:0,
+    FormDetails : []
+    }
+
+    function openFormModal() {
+    // $('#indicatorForm')[0].reset();
+    $('.form-type-section').addClass('d-none');
+    $('#indicatorModal').modal('show');
+    }
+
+    function onFormTypeChange(optionElement) {
+
+    debugger;
+
+    let value = optionElement.getAttribute("data-name");
+
+    $('.form-type-section').addClass('d-none');
+
+
+
+
+    if (value === FormTypes.TARGET[0] || value ===  FormTypes.COMPETENCE[0] || value ===  FormTypes.POTENTIAL[0] || value ===  FormTypes.INTERVIEW[0] || value ===  FormTypes.GUIDANCE[0]) 
+    {
+    $('#formFields').removeClass('d-none');
+    $('.formWeightDiv').removeClass('d-none');
+
+    if( value ===  FormTypes.INTERVIEW[0] || value ===  FormTypes.GUIDANCE[0]){
+    $('.formWeightDiv').addClass('d-none');
+    }
+
+    let indicatorAttr = getFormKeyByDisplayName(value);
+
+    $("#addIndicator").attr("indicator-type", indicatorAttr);
+
+    } 
+    else{
+    toastr.warning("Form Tipine Gösterge Eklenemez", "Uyarı");
+    }
+
+    $('#saveForm').removeClass('d-none');
+    $('#indicatorContainer').empty();
+
+    }
+
+    //Gösterge ekle butonuna attr
+    function getFormKeyByDisplayName(displayName) {
+    for (const key in FormTypes) {
+    if (FormTypes[key][0] === displayName) {
+    return FormTypes[key][1]; // "target"
+    }
+    }
+    return null;
+    }
+
+    //Gösterge ekle butonuna tıkladığında
+    $(document).on('click', '#addIndicator', function () {
+    debugger;
+    let indicatorHtml;
+
+    let type = $(this).attr("indicator-type");
+
+    if(type === FormTypes.INTERVIEW[1] || type === FormTypes.GUIDANCE[1]) {
+    indicatorHtml = `
+    <hr class="m-3" />
+    <div class="row mb-2 indicator-row indicatorRow${indicatorRowIndex}" data-id="Indicator${indicatorRowIndex}">
+    <div class="col">
+    <select class="form-select indicatorSelect Indicator${indicatorRowIndex}"  name="Indicator[${indicatorRowIndex}].Id">
+
+    </select>
+    </div>
+    <div class="col">
+             <button
+                              class="btn btn-primary me-1"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#collapseExample"
+                              aria-expanded="false"
+                              aria-controls="collapseExample">
+                                  <i class='bxr  bx-info-square'  >i</i>
+             </button>
+
+               
+    </div>
+         
+    <div class="col-auto">
+    <button type="button" class="btn btn-danger removeIndicator">Sil</button>
+    </div>
+
+         <div class="collapse" id="collapseExample">
+                                    <div class="d-grid d-sm-flex p-3 border">
+
+                                      <span>
+                                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+                                        been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
+                                        galley of type and scrambled it to make a type specimen book. It has survived not only five
+                                        centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                                        It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
+                                        passages, and more recently with desktop publishing software like Aldus PageMaker including
+                                        versions of Lorem Ipsum.It is a long established fact that a reader will be distracted by
+                                        the readable content of a page when looking at its layout. The point of using Lorem Ipsum is
+                                        that it has a more-or-less normal distribution of letters.
+                                      </span>
+                                    </div>
+                                  </div>
+    </div>
+    `;
+
+    }
+    else{
+    indicatorHtml = `
+    <hr class="m-3" />
+    <div class="row mb-2 indicator-row indicatorRow${indicatorRowIndex}" data-id="Indicator${indicatorRowIndex}">
+    <div class="col">
+    <select class="form-select indicatorSelect Indicator${indicatorRowIndex}"  name="IndicatorSelect">
+
+    </select>
+    </div>
+    <div class="col">
+    <input type="number" class="form-control indicatorWeight" name="Indicator[${indicatorRowIndex}].Weight" min="0" max="100" value="0" />
+    </div>
+          <div class="col">
+                 <button class="btn btn-primary me-1" type="button" data-bs-toggle="collapse" 
+                         data-bs-target="#collapseExample${indicatorRowIndex}"
+                         aria-expanded="false"
+                         aria-controls="collapseExample">
+                         <i class='bxr  bx-info'  >i</i>
+                 </button>
+
+                    
+        </div>
+            
+    <div class="col-auto">
+    <button type="button" class="btn btn-danger removeIndicator">Sil</button>
+    </div>
+        <div class="collapse" id="collapseExample${indicatorRowIndex}">
+           <div class="d-grid d-sm-flex p-3 border">
+             <span>
+               Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+               been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
+               galley of type and scrambled it to make a type specimen book. It has survived not only five
+               centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+               It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
+               passages, and more recently with desktop publishing software like Aldus PageMaker including
+               versions of Lorem Ipsum.It is a long established fact that a reader will be distracted by
+               the readable content of a page when looking at its layout. The point of using Lorem Ipsum is
+               that it has a more-or-less normal distribution of letters.
+             </span>
+           </div>
+        </div>
+    </div>
+    `;
+    }
+
+
+    $('#indicatorContainer').append(indicatorHtml);
+
+
+    addIndicatorSelect(indicatorRowIndex);
+    indicatorRowIndex++;
+
+    });
+
+    $(document).on('click', '.removeIndicator', function () {
+    debugger;
+    // var id =  $(this).closest('.staging-row').attr("data-id");
+
+    // model.Stages = model.Stages.filter(s => s.id !== id);
+    $(this).closest('.indicator-row').remove();
+    });
+
+    //Gösterge drop-down doldurma
+    function addIndicatorSelect(indicatorRowIndex){
+    let formTypeId = $('#formTypeSelect option:selected').val();
+
+    if (!formTypeId) return;
+
+    $.ajax({
+    url: `/AllForms/GetIndicatorsByFormType?formTypeId=${formTypeId}`,
+    type: 'GET',
+    success: function (data) {
+    debugger;
+
+    let selectBox = $('#indicatorContainer').find(".indicatorRow"+indicatorRowIndex).find('.indicatorSelect');
+
+    //varsa destro
+    if (selectBox.hasClass("select2-hidden-accessible")) {
+    selectBox.select2('destroy');
+    }
+
+    selectBox.empty();
+    selectBox.append(`<option></option>`); 
+    data.forEach(indicator => {
+    selectBox.append(`<option value="${indicator.id}">${indicator.indicatorName}</option>`);
+    });
+
+
+    selectBox.select2({
+    placeholder: "Gösterge seçiniz",
+    allowClear: true,
+    dropdownParent: $('#indicatorModal') 
+    });
+    },
+    error: function () {
+    toastr.error("Gösterge Listesi Alınamadı", "Hata");
+    }
+    });
+
+
+    }
+
+    // formu kaydet butonu
+    $("#saveForm").click(function(){
+
+    debugger;
+
+
+    const formWeight = parseFloat($('#formWeight').val());
+    const indicatorsTotal = calculateTotalIndicatorWeight();
+
+    if (formWeight !== indicatorsTotal) {
+    toastr.error("Form ağırlığı ve gösterge ağırlıkları toplamı ile eşleşmiyor!", "Hata");
+    e.preventDefault();
+    return false;
+    }
+    else{
+    bindModel();
+
+    console.log(model);
+
+    $.ajax({
+    url: '/AllForms/CreateForm', 
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(model),
+    success: function (res) {
+    toastr.success("Form başarıyla eklendi");
+    // Gerekirse sayfa yenilenebilir
+    },
+    error: function () {
+    toastr.error("Form eklenirken hata oluştu");
+    }
+    });
+    }
+
+    });
+
+    function bindModel(){
+    debugger;
+    model.FormTypeId = $('#formTypeSelect option:selected').val();
+    model.FormTypeText=$('#formTypeSelect option:selected').attr("data-name")
+    model.FormName = $('#formName').val();
+    model.TotalWeight = parseInt($('#formWeight').val(), 10);
+
+    $('#indicatorContainer .indicator-row').each(function () {
+
+    let formDetail = {
+    IndicatorName: "",
+    IndicatorId: $(this).find('.indicatorSelect option:selected').val(),
+    Weight: parseInt($(this).find('.indicatorWeight').val(), 10)
+    };
+
+    model.FormDetails.push(formDetail);
+
+    });
+    }
+
+    // toplam kontrolü
+    function calculateTotalIndicatorWeight() {
+    let total = 0;
+    $('.indicatorWeight').each(function () {
+    debugger;
+    const val = parseFloat($(this).val());
+    if (!isNaN(val)) {
+    total += val;
+    }
+
+    });
+    return total;
+    }
+
+
+    // formu güncelle
+    $(".updateForm").click(function(){
+        alert("bakımda, güncellenecek");
+    });
+
+      // formu sil
+    $(".deleteForm").click(function(){
+        alert("bakımda, güncellenecek");
+    });
+
+</script>
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">IK Yönetim Paneli /</span> Tüm Formlar
+</h4>
+
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0"></h5>
+        <a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="openFormModal()"> <i class="bx bx-plus"></i>Yeni Form Ekle</a>
+
+    </div>
+
+    <div class="table table-hover table-fixed text-wrap">
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Form Tipi</th>
+                    <th>Form Adı</th>
+                    <th>Göstergeler</th>
+                    <th>Toplam Ağırlık</th>
+                    <th>İşlem</th>
+
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                @foreach (var form in Model.Forms)
+                {
+
+               @*     var a = Model.Forms; *@
+                    <tr>
+                        <td>@form.FormTypeText</td>
+                        <td>@form.FormName</td>
+                        <td>
+                            <div style="max-height: 120px; overflow-y: auto;">
+                                <ul class="ps-3 mb-0">
+                                    @foreach (var detail in form.FormDetails)
+                                    {
+                                        <li>@detail.IndicatorName - Ağırlık: @detail.Weight</li>
+                                    }
+                                </ul>
+                            </div>
+
+                        </td>
+                        <td>@form.TotalWeight</td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item updateForm" href="javascript:void(0);">
+                                        <i class="bx bx-edit-alt me-1"></i> Güncelle
+                                    </a>
+                                    <a class="dropdown-item deleteForm" href="javascript:void(0);">
+                                        <i class="bx bx-trash me-1"></i> Sil
+                                    </a>
+                                </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="indicatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        @* <form id="indicatorForm" method="post"> *@
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bx bx-spreadsheet me-2"></i> Yeni Form Ekle
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">Form Tipi</label>
+                        <select class="form-select" id="formTypeSelect" name="FormType" onchange="onFormTypeChange(this.options[this.selectedIndex])">
+                            <option value="">Seçiniz</option>
+                              @foreach (var form in Model.FormTypes)
+                            {
+                                <option data-name="@form.FormTypeName" value="@form.Id">@form.FormTypeName</option>
+                            }
+                        </select>
+                    </div>
+               
+                
+                <div id="formFields" class="form-type-section d-none">
+                    <div class="row g-2">
+                        <div class="col mb-0">
+                            <label class="form-label">Form Adı</label>
+                            <input type="text" class="form-control formName" id="formName" name="FormName">
+                        </div>
+                        <div class="col mb-0 formWeightDiv">
+                            <label class="form-label">Form Ağırlığı</label>
+                            <input type="number" class="form-control formWeight" id="formWeight" name="FormWeight" max="100">
+                        </div>
+                    </div>
+                    
+                   
+
+                    <hr class="m-3" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Gösterge Tanımları</label>
+                     
+                        <button type="button" class="btn rounded-pill btn-success btn-sm mt-2 addIndicator" id="addIndicator">+ Gösterge Ekle</button>
+                      
+                        <div class="mb-3" id="indicatorContainer"></div>
+                    </div>
+                </div>
+
+                </div>
+                <div class="modal-footer">
+                <button class="btn btn-primary d-none" id="saveForm">Kaydet</button>
+                </div>
+            </div>
+   @*      </form> *@
+    </div>
+</div>

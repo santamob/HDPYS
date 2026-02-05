@@ -1,0 +1,79 @@
+﻿@using PYS.Core.Application.Features.UserFeature.Dtos
+
+@model SantaFarma.Architecture.Core.Domain.Entities.AppUser
+@{
+    var fullName = Model.UserName ?? "";
+    var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var initials = "";
+
+    if (parts.Length >= 2)
+    {
+        initials = $"{char.ToUpper(parts[0][0])}{char.ToUpper(parts[1][0])}";
+    }
+    else if (parts.Length == 1 && parts[0].Length > 0)
+    {
+        initials = char.ToUpper(parts[0][0]).ToString();
+    }
+}
+
+<div class="card mb-4">
+    <h5 class="card-header">Profil Bilgileri</h5>
+   
+
+    <div class="card-body">
+        <div class="d-flex align-items-start align-items-sm-center gap-4  justify-content-center">
+            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 75px; height: 75px;">
+                <span>@initials</span>
+            </div>
+
+          
+        </div>
+    </div>
+    <hr class="my-0" />
+    <div class="card-body">
+       
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label for="firstName" class="form-label">İsim Soyisim</label>
+                    <input class="form-control"
+                           type="text"
+                           id="firstName"
+                           name="firstName"
+                       value="@Model.UserName"
+                           readonly />
+                </div>
+                
+                <div class="mb-3 col-md-6">
+                    <label for="email" class="form-label">Mail Adresi</label>
+                    <input class="form-control"
+                           type="text"
+                           id="email"
+                           name="email"
+                           value="@Model.Email" readonly/>
+                </div>
+
+            <div class="mb-3 col-md-6">
+                <label for="email" class="form-label">Sicil Kodu</label>
+                <input class="form-control"
+                       type="text"
+                       id="email"
+                       name="email"
+                       value="@Model.RegistrationNumber" readonly />
+            </div>
+
+            <div class="mb-3 col-md-6">
+                <label for="email" class="form-label">Telefon Numarası</label>
+                <input class="form-control"
+                       type="text"
+                       id="email"
+                       name="email"
+                       value="@Model.PhoneNumber" readonly />
+            </div>
+               
+              
+                
+            </div>
+       
+    </div>
+    <!-- /Account -->
+</div>

@@ -1,0 +1,433 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Active" xml:space="preserve">
+    <value>Aktif</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Ekle</value>
+    <comment>Base</comment>
+  </data>
+  <data name="AddUserSuccess" xml:space="preserve">
+    <value>Kullanıcı eklendi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="AreYouSure" xml:space="preserve">
+    <value>Emin misiniz?</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Authorities" xml:space="preserve">
+    <value>Yetkililer</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>İptal</value>
+    <comment>Base</comment>
+  </data>
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Mevcut Parola</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Tarih</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Sil</value>
+    <comment>Base</comment>
+  </data>
+  <data name="DeselectAll" xml:space="preserve">
+    <value>Tümünü Kaldır</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Disable" xml:space="preserve">
+    <value>Pasif Et</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Mail Adresi</value>
+    <comment>Base</comment>
+  </data>
+	<data name="EmailOrOrgNo" xml:space="preserve">
+    <value>Mail Adresi veya Sicil Kodu</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EmailCannotBeEmpty" xml:space="preserve">
+    <value>E-posta boş olamaz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EmployeeNotFound" xml:space="preserve">
+    <value>Personel bulunamadı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Enable" xml:space="preserve">
+    <value>Aktif Et</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EndDate" xml:space="preserve">
+    <value>Bitiş Tarihi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EndMustBeGreaterThanBeginning" xml:space="preserve">
+    <value>Başlangıç tarihi bitiş tarihinden büyük olamaz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EndMustBeLessThanNow" xml:space="preserve">
+    <value>Bitiş tarihi şuandan büyük olamaz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="EnterYourMail" xml:space="preserve">
+    <value>Mail adresinizi giriniz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Hata</value>
+    <comment>Base</comment>
+  </data>
+  <data name="ErrorProcess" xml:space="preserve">
+    <value>İşlem sırasında hata ile karşılaşıldı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Explanation" xml:space="preserve">
+    <value>Açıklama</value>
+    <comment>Base</comment>
+  </data>
+  <data name="GeneralError" xml:space="preserve">
+    <value>İşleminiz esnasında hata ile karşılaşıldı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Ana sayfa</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>Saat</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Giriş Yap</value>
+    <comment>Base</comment>
+  </data>
+  <data name="LoginError" xml:space="preserve">
+    <value>E-Posta adresiniz veya şifreniz hatalıdır</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Çıkış</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Minute" xml:space="preserve">
+    <value>Dakika</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Aylık</value>
+    <comment>Base</comment>
+  </data>
+  <data name="MyProfile" xml:space="preserve">
+    <value>Profilim</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Ad</value>
+    <comment>Base</comment>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>Yeni Parola</value>
+    <comment>Base</comment>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Hayır</value>
+    <comment>Base</comment>
+  </data>
+  <data name="NotFoundPage" xml:space="preserve">
+    <value>Üzgünüz.. Ulaşmak istediğiniz sayfa değişmiş, taşınmış ya da geçiçi olarak ulaşılamıyor olabilir.</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Opsiyonel</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Passive" xml:space="preserve">
+    <value>Pasif</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Şifre</value>
+    <comment>Base</comment>
+  </data>
+  <data name="PlaseEnterContent" xml:space="preserve">
+    <value>Lütfen içerik giriniz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="PleaseSelect" xml:space="preserve">
+    <value>Lütfen Seçiniz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Process" xml:space="preserve">
+    <value>İşlem</value>
+    <comment>Base</comment>
+  </data>
+  <data name="RegistrationNumber" xml:space="preserve">
+    <value>Sicil No</value>
+    <comment>Base</comment>
+  </data>
+  <data name="RememberMe" xml:space="preserve">
+    <value>Beni Hatırla</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Report" xml:space="preserve">
+    <value>Rapor</value>
+    <comment>Base</comment>
+  </data>
+  <data name="ReportManagement" xml:space="preserve">
+    <value>Rapor Yönetimi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Rol</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Kaydet</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Sorgula</value>
+    <comment>Base</comment>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Tümünü Seç</value>
+    <comment>Base</comment>
+  </data>
+  <data name="StartDate" xml:space="preserve">
+    <value>Başlangıç Tarihi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="StartMustBeLessThanNow" xml:space="preserve">
+    <value>Başlangıç tarihi şuandan büyük olamaz</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Durum</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>Konu</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Başarılı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="SuccessProcess" xml:space="preserve">
+    <value>İşleminiz başarıyla kaydedildi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Özet</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Surname" xml:space="preserve">
+    <value>Soyad</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Başlık</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Tür</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Uncompleted" xml:space="preserve">
+    <value>Tamamlanmadı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Güncelle</value>
+    <comment>Base</comment>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Kullanıcı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="UserGuide" xml:space="preserve">
+    <value>Kullanım Kılavuzu</value>
+    <comment>Base</comment>
+  </data>
+  <data name="UserManagement" xml:space="preserve">
+    <value>Kullanıcı Yönetimi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Uyarı</value>
+    <comment>Base</comment>
+  </data>
+  <data name="WorkingCondition" xml:space="preserve">
+    <value>İş Durumu</value>
+    <comment>Base</comment>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Evet</value>
+    <comment>Base</comment>
+  </data>
+  <data name="UsefulLink" xml:space="preserve">
+    <value>Faydalı Linkler</value>
+    <comment>Base</comment>
+  </data>
+  <data name="UsefulLinkManagement" xml:space="preserve">
+    <value>Faydalı Link Yönetimi</value>
+    <comment>Base</comment>
+  </data>
+  <data name="LoginLockedOutUntil" xml:space="preserve">
+    <value>Oturumunuz kilitlendi</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Departman</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Pozisyon</value>
+  </data>
+  <data name="EmailOrPasswordShouldNotBeInvalid" xml:space="preserve">
+    <value>Kullanıcı bilgileri yanlıştır</value>
+  </data>
+  <data name="UserShouldNotBeExist" xml:space="preserve">
+    <value>Bu mail adresi ile kullanıcı mevcut</value>
+  </data>
+  <data name="EmailAddressShouldBeValid" xml:space="preserve">
+    <value>Kayıtlı mail adresi bulunmamaktadır</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Kategori</value>
+  </data>
+  <data name="CategoryManagement" xml:space="preserve">
+    <value>Kategori Yönetimi</value>
+  </data>
+  <data name="Product" xml:space="preserve">
+    <value>Ürün</value>
+  </data>
+  <data name="ProductManagement" xml:space="preserve">
+    <value>Ürün Yönetimi</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Kod</value>
+  </data>
+</root>

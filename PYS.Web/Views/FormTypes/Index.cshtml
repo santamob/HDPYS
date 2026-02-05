@@ -1,0 +1,63 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.FormTypesFeature.Dtos
+@model List<FormTypesDto>
+@{
+    string localizationUpdate = @localization.GetKey("Update").Value;
+    string localizationEnable = @localization.GetKey("Enable").Value;
+    string localizationDisable = @localization.GetKey("Disable").Value;
+    string localizationActive = @localization.GetKey("Active").Value;
+    string localizationPassive = @localization.GetKey("Passive").Value;
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">IK Yönetim Paneli /</span> Form Tipleri
+</h4>
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+        <div class="card-header flex-column flex-md-row">
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <div class="dt-buttons">
+                    <a class="btn btn-sm btn-primary" asp-controller="FormTypes" asp-action="Create">
+                        Form Tipi Ekle <i class="bx bx-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead>
+                <tr>
+                    <th>İşlem</th>
+                    <th>Form Tipi</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+
+            <tbody class="table-border-bottom-0">
+                @foreach (var formtype in Model)
+                {
+                    string statu = formtype.IsActive ? "Active" : "Passive";
+                    string statuClass = formtype.IsActive ? "success" : "warning";
+                    string statuUpdateButton = formtype.IsActive ? "Enable" : "Disable";
+                    string statuUpdateClass = formtype.IsActive ? "minus" : "plus";
+
+                    <tr name="@formtype.Id">
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-controller="" asp-action="Update" asp-route-id="@formtype.Id"><i class="bx bx-edit-alt me-1"></i> Güncelle</a>
+                                    <a class="dropdown-item" asp-controller="" asp-action="UpdateStatu" asp-route-id="@formtype.Id"><i class="bx bx-@statuUpdateClass me-1"></i>Pasif Et </a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@formtype.FormTypeName</td>
+                        <td>
+                            <span class="badge bg-label-@statuClass me-1">@statu</span> 
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

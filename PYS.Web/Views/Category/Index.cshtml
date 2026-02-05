@@ -1,0 +1,61 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.CategoryFeature.Dtos
+@model List<CategoryDto>
+@{
+    string localizationUpdate = @localization.GetKey("Update").Value;
+    string localizationEnable = @localization.GetKey("Enable").Value;
+    string localizationDisable = @localization.GetKey("Disable").Value;
+    string localizationActive = @localization.GetKey("Active").Value;
+    string localizationPassive = @localization.GetKey("Passive").Value;
+}
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">@localization.GetKey("CategoryManagement").Value /</span> @localization.GetKey("Category").Value
+</h4>
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+        <div class="card-header flex-column flex-md-row">
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <div class="dt-buttons">
+                    <a class="btn btn-sm btn-outline-primary mb-3" asp-controller="Category" asp-action="Create">
+                        @localization.GetKey("Category").Value @localization.GetKey("Add").Value <i class="bx bx-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead>
+                <tr>
+                    <th>@localization.GetKey("Process").Value</th>
+                    <th>@localization.GetKey("Name").Value</th>
+                    <th>@localization.GetKey("Status").Value</th>
+                </tr>
+            </thead>
+
+            <tbody class="table-border-bottom-0">
+                @foreach (var category in Model)
+                {
+                    string statu = category.IsActive ? localizationActive : localizationPassive;
+                    string statuClass = category.IsActive ? "success" : "warning";
+                    string statuUpdateButton = category.IsActive ? localizationDisable : localizationEnable;
+                    string statuUpdateClass = category.IsActive ? "minus" : "plus";
+                    <tr name="@category.Id">
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" asp-controller="Category" asp-action="Update" asp-route-id="@category.Id"><i class="bx bx-edit-alt me-1"></i> @localizationUpdate</a>
+                                    <a class="dropdown-item" asp-controller="Category" asp-action="UpdateStatu" asp-route-id="@category.Id"><i class="bx bx-@statuUpdateClass me-1"></i> @statuUpdateButton</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@category.Name</td>
+                        <td>
+                            <span class="badge bg-label-@statuClass me-1">@statu</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

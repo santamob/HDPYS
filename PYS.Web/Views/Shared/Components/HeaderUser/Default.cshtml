@@ -1,0 +1,110 @@
+﻿@using PYS.Web.Services
+@using PYS.Core.Application.Features.UserFeature.Dtos
+@model UserDto
+
+@* <li class="nav-item dropdown me-2 me-xl-0" onclick="showUserGuide()" title="@localization.GetKey("UserGuide")"><i class="bx bx-question-mark bx-sm"></i></li> *@
+@* <li class="nav-item dropdown-language dropdown me-2 me-xl-0">
+    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bx bx-globe bx-sm"></i>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="changeLanguage('tr-TR', 'ltr', '@Url.Action("ChangeLanguage", "Language", new { culture = "tr-TR", returnUrl = Context.Request.Path })')">
+                <span class="align-middle">Türkçe</span>
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="javascript:void(0);" onclick="changeLanguage('en-US', 'ltr', '@Url.Action("ChangeLanguage", "Language", new { culture = "en-US", returnUrl = Context.Request.Path })')">
+                <span class="align-middle">English</span>
+            </a>
+        </li>
+    </ul>
+</li> *@
+
+<li class="nav-item navbar-dropdown dropdown-user dropdown">
+    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+        <div class="avatar avatar-online">
+            <img src="~/sneat/assets/img/logos/profile.png" class="w-px-40 h-auto rounded-circle">
+        </div>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <a class="dropdown-item" href="#">
+                <div class="d-flex">
+                    <div class="flex-shrink-0 me-3">
+                        <div class="avatar avatar-online">
+                            <img src="~/sneat/assets/img/logos/profile.png" class="w-px-40 h-auto rounded-circle">
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <span class="fw-semibold d-block">@Model.FirstName @Model.LastName</span>
+                        <small class="text-muted">@Model.Position</small>
+                    </div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <div class="dropdown-divider"></div>
+        </li>
+        @* <li>
+            <a class="dropdown-item" asp-controller="User" asp-action="Profile">
+                <i class="bx bx-user me-2"></i>
+                <span class="align-middle">@localization.GetKey("MyProfile").Value</span>
+            </a>
+        </li> *@
+        <li>
+            <a class="dropdown-item" asp-controller="Auth" asp-action="Logout">
+                <i class="bx bx-power-off me-2"></i>
+                <span class="align-middle">@localization.GetKey("Logout").Value</span>
+            </a>
+        </li>
+    </ul>
+</li>
+<script>
+    function usefulLink() {
+        $.ajax({
+            url: 'Home/UsefulLink',
+            type: 'GET',
+            success: function (result) {
+                $("#usefulLinksModalBody").html(result);
+                $("#usefulLinksModal").modal('show');
+            },
+            error: function (error) {
+                console.error(error);
+            }
+        });
+    }
+    function changeLanguage(language, textDirection, returnUrl) {
+        fetch(returnUrl, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                document.querySelectorAll('html').forEach(function (html) {
+                    html.lang = language;
+                });
+
+                document.querySelectorAll('body').forEach(function (body) {
+                    body.dir = textDirection;
+                });
+
+                location.reload(); // Sayfayı yeniden yükle
+            }
+        });
+    }
+    function showUsefulLink() {
+        $.ajax({
+            type: "GET",
+            url: '/Home/UsefulLink',
+            success: function (response) {
+                $('#modalContainerUsefulLink').html(response);
+                $('#usefulLinkModal').modal('show');
+            },
+            error: function () {
+                alert('Error occurred while loading details.');
+            }
+        });
+    }
+    function showUserGuide() {
+        window.open('/Documents/UserGuide.pdf');
+    }
+</script>

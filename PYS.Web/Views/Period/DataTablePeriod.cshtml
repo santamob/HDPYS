@@ -1,0 +1,225 @@
+﻿@using PYS.Core.Domain.Entities
+@model IList<PYS.Core.Application.Features.PeriodInUserFeature.Dtos.PeriodInUserDto>
+@{
+    var periodId = ViewBag.PeriodId;
+    var periodYear = ViewBag.PeriodYear;
+    var periodTerm = ViewBag.PeriodTerm;
+}
+@section Scripts {
+  <script>
+   $(document).on('click', '#editPeriodUserDetail', function () {
+     
+      debugger;
+     const userId = $(this).data("user-id");     
+
+   $.ajax({
+       url: `/Period/GetPeriodUserById`,
+       type: 'GET',
+       data: { Id: userId },
+       success: function (data) {
+           if (data) {
+               debugger;
+               $("#editPeriodInUserId").val(data.id);
+               $("#editPerNr").val(data.perNr);
+               $("#editEname").val(data.ename);
+
+               $("#editSID").val(data.sid);
+               $("#editPLSTX").val(data.plstx);
+
+               $("#editOID").val(data.oid);
+               $("#editOrgtx").val(data.orgtx);
+
+               $("#editManager").val(data.mPernr);
+               $("#editManagerMail").val(data.mMail);
+
+               $("#editLevel").val(data.level ?? "0");
+
+               $("#editUserModal").modal("show");
+           } else {
+               alert("Kullanıcı bulunamadı.");
+           }
+       },
+       error: function () {
+           alert("Bir hata oluştu.");
+       }
+   });
+  });
+
+  function saveUserChanges(){
+      
+      let userData ={
+        Id :  $("#editPeriodInUserId").val(),
+        PerNr : $("#editPerNr").val(),
+        SID:  $("#editSID").val(),
+        Plstx:  $("#editPLSTX").val(),
+        OID: $("#editOID").val(),
+        Orgtx: $("#editOrgtx").val(),
+        MMail:$("#editManagerMail").val(),
+        MPernr: $("#editManager").val(),
+        Level : $("#editLevel").val()
+      }
+      // console.log(userData);
+    
+       $.ajax({
+           url: "/Period/UpdatePeriodInUser",
+           method: "POST",
+           contentType: "application/json",
+           data: JSON.stringify(userData),
+           success: function (res) {
+               toastr.success(res.message);
+               $("#editUserModal").modal("hide");
+               // Sayfayı yenilemek veya tabloyu güncellemek istersen buraya ekle
+           },
+           error: function (err) {
+               toastr.error(err.responseJSON?.message || "Güncelleme sırasında hata oluştu.");
+           }
+       });
+  }
+
+
+  </script>
+}
+
+<input type="hidden" id="hiddenPeriodId" value="@periodId" />
+
+<div class="card">
+    <div class="card-datatable table-responsive m-2">
+       
+        <div class="card-header flex-column flex-md-row">
+            <h5 class="mb-0">Dönem: @ViewBag.PeriodYear - @ViewBag.PeriodTerm Kişi Listesi</h5>
+            <div class="dt-action-buttons text-end pt-3 pt-md-0">
+                <button type="button" class="btn btn-success me-2" id="assignFormBtn">
+                    <i class="bx bx-task"></i> Form Atama
+                </button>
+                <button type="button" class="btn btn-warning" id="assignStagingBtn">
+                    <i class="bx bx-user-check"></i> Kademelendirme Atama
+                </button>
+                
+                <a asp-controller="Period" asp-action="TreeViewPeriod" asp-route-periodId="@periodId" asp-route-periodYear="@periodYear" asp-route-periodTerm="@periodTerm" class="btn btn-primary">
+                    <i class="bx bx-git-branch"></i> Organizasyon Ağacı
+                </a>
+            </div>
+        </div>
+        <table class="datatables-basic table border-top dataTable no-footer dtr-column" id="dataTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" /></th>
+                    <th>Ad Soyad</th>
+                    <th>Pozisyon</th>
+                    <th>Yönetici</th>
+                   @*  <th>Hedef Formları</th>
+                    <th>Yetkinlik Formları</th>
+                    <th>Potansiyel Formları</th>
+                    <th>Görüşme Formları</th>
+                    <th>Yönlendirme Formları</th>
+                    <th>Kademelendirme Havuzu</th>
+                    <th>Kademelendirecek Kişi</th> *@
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+
+            <tbody class="table-border-bottom-0">
+                @foreach (var employee in Model)
+                {
+                    <tr>
+                        <td><input type="checkbox" class="selectEmployee" value="@employee.PerNr" /></td>
+                        <td>@employee.Ename</td>
+                        <td>@employee.PLSTX</td>
+                        <td>@employee.MFullName</td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item editPeriodUserDetail" id="editPeriodUserDetail" data-id="@employee.Id"  data-user-id="@employee.Id"><i class="bx bx-edit-alt me-1"></i>Kişi Bilgilerini Güncelle</a>
+                                    <a class="dropdown-item" ><i class="bx bx-edit-alt me-1"></i> Form Ata</a>
+                                    
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Kullanıcı Bilgileri Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editPeriodInUserId" />
+                
+
+                <div class="row g-2">
+                    <div class="col mb-0">
+                        <label for="editEname" class="form-label">PerNr</label>
+                        <input type="text" id="editPerNr" class="form-control" readonly />
+
+                    </div>
+                    <div class="col mb-0">
+                        <label for="editEname" class="form-label">Ad Soyad</label>
+                        <input type="text" id="editEname" class="form-control" readonly />
+                    </div>
+                </div>
+
+
+                <div class="row g-2">
+                    <div class="col mb-0">
+                        <label for="editSID" class="form-label">PozisyonId</label>
+                        <input type="text" id="editSID" class="form-control" />
+
+                    </div>
+                    <div class="col mb-0">
+                        <label for="editPLSTX" class="form-label">Pozisyon Tanım</label>
+                        <input type="text" id="editPLSTX" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col mb-0">
+                        <label for="editOID" class="form-label">Organizasyon Id</label>
+                        <input type="text" id="editOID" class="form-control" />
+
+                    </div>
+                    <div class="col mb-0">
+                        <label for="editOrgtx" class="form-label">Pozisyon Tanım</label>
+                        <input type="text" id="editOrgtx" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col mb-0">
+                        <label for="editManager" class="form-label">Yönetici PerNr</label>
+                        <input type="text" id="editManager" class="form-control" />
+
+                    </div>
+                    <div class="col mb-0">
+                        <label for="editManagerMail" class="form-label">Yönetici Mail</label>
+                        <input type="email" id="editManagerMail" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="editLevel" class="form-label">Kademe</label>
+                    <select id="editLevel" class="form-select">
+                        <option value="10">Uzman</option>
+                        <option value="20">İlk Kademe Yönetici</option>
+                        <option value="30">Müdür</option>
+                        <option value="40">Direktör</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="saveUserChanges" onclick="saveUserChanges()" class="btn btn-primary">Kaydet</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
