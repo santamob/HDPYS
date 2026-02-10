@@ -60,7 +60,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AppUserModifiedId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.FormDetails", b =>
@@ -109,7 +109,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IndicatorId");
 
-                    b.ToTable("FormDetails");
+                    b.ToTable("FormDetails", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.FormTypes", b =>
@@ -149,7 +149,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AppUserModifiedId");
 
-                    b.ToTable("FormTypes");
+                    b.ToTable("FormTypes", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.FormTypesPeriods", b =>
@@ -164,7 +164,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PeriodsId");
 
-                    b.ToTable("FormTypesPeriods");
+                    b.ToTable("FormTypesPeriods", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Forms", b =>
@@ -214,7 +214,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AppUserModifiedId");
 
-                    b.ToTable("Forms");
+                    b.ToTable("Forms", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Indicator", b =>
@@ -318,7 +318,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("FormTypeId");
 
-                    b.ToTable("Indicators");
+                    b.ToTable("Indicators", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Location", b =>
@@ -358,7 +358,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AppUserModifiedId");
 
-                    b.ToTable("Locations");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.LocationPeriods", b =>
@@ -373,7 +373,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PeriodsId");
 
-                    b.ToTable("LocationPeriods");
+                    b.ToTable("LocationPeriods", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.PeriodInUser", b =>
@@ -468,7 +468,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PeriodId");
 
-                    b.ToTable("PeriodInUsers");
+                    b.ToTable("PeriodInUsers", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Periods", b =>
@@ -520,7 +520,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AppUserModifiedId");
 
-                    b.ToTable("Periods");
+                    b.ToTable("Periods", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.PotentialEvaluation", b =>
@@ -571,7 +571,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PeriodId");
 
-                    b.ToTable("PotentialEvaluations");
+                    b.ToTable("PotentialEvaluations", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.PotentialEvaluationDetail", b =>
@@ -619,7 +619,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PotentialEvaluationId");
 
-                    b.ToTable("PotentialEvaluationDetails");
+                    b.ToTable("PotentialEvaluationDetails", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Product", b =>
@@ -668,7 +668,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("PYS.Core.Domain.Entities.Stage", b =>
@@ -719,7 +719,7 @@ namespace PYS.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IndicatorId");
 
-                    b.ToTable("Stages");
+                    b.ToTable("Stages", (string)null);
                 });
 
             modelBuilder.Entity("SantaFarma.Architecture.Core.Domain.Entities.AppRole", b =>
