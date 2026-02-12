@@ -1,0 +1,304 @@
+@using PYS.Web.Services
+@using PYS.Core.Domain.Enums
+@model PYS.Web.ViewModels.MyGoals.MyGoalsIndexViewModel
+@{
+    ViewData["Title"] = "Hedeflerim";
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">Performans /</span> Hedeflerim
+</h4>
+
+<!-- Dashboard Kartları -->
+<div class="row mb-4">
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-primary"><i class="bx bx-target-lock"></i></span>
+                </div>
+                <h5 class="mb-0">@Model.TotalCount</h5>
+                <small class="text-muted">Toplam Hedef</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-secondary"><i class="bx bx-edit"></i></span>
+                </div>
+                <h5 class="mb-0">@Model.DraftCount</h5>
+                <small class="text-muted">Taslak</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-time"></i></span>
+                </div>
+                <h5 class="mb-0">@Model.PendingApprovalCount</h5>
+                <small class="text-muted">Onay Bekleyen</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-success"><i class="bx bx-check-circle"></i></span>
+                </div>
+                <h5 class="mb-0">@Model.ApprovedCount</h5>
+                <small class="text-muted">Onaylanan</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-danger"><i class="bx bx-x-circle"></i></span>
+                </div>
+                <h5 class="mb-0">@Model.RejectedCount</h5>
+                <small class="text-muted">Reddedilen</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="avatar avatar-md mx-auto mb-2">
+                    <span class="avatar-initial rounded-circle bg-label-info"><i class="bx bx-bar-chart-alt-2"></i></span>
+                </div>
+                <h5 class="mb-0">%@Model.TotalWeight</h5>
+                <small class="text-muted">Toplam Agirlik</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtreler ve Aksiyonlar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Donem</label>
+                <select name="periodId" class="form-select">
+                    <option value="">Tum Donemler</option>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <option value="@period.Id" selected="@(Model.SelectedPeriodId == period.Id)">@period.DisplayName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Durum</label>
+                <select name="status" class="form-select">
+                    <option value="">Tum Durumlar</option>
+                    <option value="0" selected="@(Model.SelectedStatus == 0)">Taslak</option>
+                    <option value="1" selected="@(Model.SelectedStatus == 1)">Onay Bekliyor</option>
+                    <option value="2" selected="@(Model.SelectedStatus == 2)">Onaylandi</option>
+                    <option value="3" selected="@(Model.SelectedStatus == 3)">Reddedildi</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bx bx-filter-alt me-1"></i>Filtrele</button>
+            </div>
+            <div class="col-md-3 text-end">
+                <a class="btn btn-primary" asp-action="Create"><i class="bx bx-plus me-1"></i>Yeni Hedef</a>
+                @if (Model.TotalWeight == 100 && Model.DraftCount > 0)
+                {
+                    <button type="button" class="btn btn-success ms-2" id="btnSubmitAll" data-period-id="@Model.SelectedPeriodId">
+                        <i class="bx bx-send me-1"></i>Tumunu Onaya Gonder
+                    </button>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Hedef Kartları -->
+@if (Model.Goals.Any())
+{
+    <div class="row">
+        @foreach (var goal in Model.Goals)
+        {
+            var statusClass = goal.Status switch
+            {
+                GoalStatus.Draft => "secondary",
+                GoalStatus.PendingApproval => "warning",
+                GoalStatus.Approved => "success",
+                GoalStatus.Rejected => "danger",
+                _ => "secondary"
+            };
+            var statusIcon = goal.Status switch
+            {
+                GoalStatus.Draft => "bx-edit",
+                GoalStatus.PendingApproval => "bx-time",
+                GoalStatus.Approved => "bx-check-circle",
+                GoalStatus.Rejected => "bx-x-circle",
+                _ => "bx-question-mark"
+            };
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 border-start border-@statusClass border-3">
+                    <div class="card-header d-flex justify-content-between align-items-center pb-0">
+                        <h6 class="card-title mb-0 text-truncate" title="@goal.GoalTitle" style="max-width: 200px;">@goal.GoalTitle</h6>
+                        <div class="dropdown">
+                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" asp-action="Detail" asp-route-id="@goal.Id">
+                                    <i class="bx bx-show me-1"></i> Detay
+                                </a>
+                                @if (goal.Status == GoalStatus.Draft || goal.Status == GoalStatus.Rejected)
+                                {
+                                    <a class="dropdown-item" asp-action="Edit" asp-route-id="@goal.Id">
+                                        <i class="bx bx-edit-alt me-1"></i> Duzenle
+                                    </a>
+                                }
+                                @if (goal.Status == GoalStatus.Draft)
+                                {
+                                    <a class="dropdown-item text-danger btn-delete-goal" href="javascript:void(0);" data-id="@goal.Id">
+                                        <i class="bx bx-trash me-1"></i> Sil
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(goal.IndicatorName))
+                        {
+                            <div class="mb-2">
+                                <small class="text-muted"><i class="bx bx-bar-chart me-1"></i>Gosterge:</small>
+                                <br />
+                                <small class="fw-medium">@goal.IndicatorName</small>
+                            </div>
+                        }
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <small class="text-muted">Hedef Deger</small>
+                                <br />
+                                <span class="fw-medium">@goal.TargetValue @goal.TargetUnit</span>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">Agirlik</small>
+                                <br />
+                                <span class="fw-medium">%@goal.Weight</span>
+                            </div>
+                        </div>
+                        @if (goal.StartDate.HasValue || goal.EndDate.HasValue)
+                        {
+                            <div class="mb-2">
+                                <small class="text-muted"><i class="bx bx-calendar me-1"></i></small>
+                                <small>@(goal.StartDate?.ToString("dd.MM.yyyy") ?? "-") - @(goal.EndDate?.ToString("dd.MM.yyyy") ?? "-")</small>
+                            </div>
+                        }
+                        @if (goal.RejectionCount > 0)
+                        {
+                            <div class="mb-1">
+                                <small class="text-danger"><i class="bx bx-revision me-1"></i>@goal.RejectionCount kez reddedildi</small>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(goal.ManagerNote))
+                        {
+                            <div class="alert alert-sm alert-warning py-1 px-2 mb-0 mt-2">
+                                <small><i class="bx bx-comment me-1"></i><strong>Yonetici Notu:</strong> @goal.ManagerNote</small>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer pt-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-label-@statusClass"><i class="bx @statusIcon me-1"></i>@goal.StatusText</span>
+                            <small class="text-muted">@goal.PeriodName</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Önizleme Butonu -->
+    @if (Model.SelectedPeriodId.HasValue && Model.Goals.Any())
+    {
+        <div class="text-center mt-3">
+            <a class="btn btn-outline-info" asp-action="Preview" asp-route-periodId="@Model.SelectedPeriodId">
+                <i class="bx bx-show me-1"></i>Donemi Onizle
+            </a>
+        </div>
+    }
+}
+else
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bx bx-target-lock bx-lg text-muted mb-3"></i>
+            <h5 class="text-muted">Henuz hedef eklenmemis</h5>
+            <p class="text-muted">Yeni hedef eklemek icin asagidaki butonu kullanin.</p>
+            <a class="btn btn-primary" asp-action="Create"><i class="bx bx-plus me-1"></i>Yeni Hedef Ekle</a>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Hedef silme
+        $(document).on('click', '.btn-delete-goal', function () {
+            var goalId = $(this).data('id');
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu hedef kalici olarak silinecektir!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Evet, Sil',
+                cancelButtonText: 'Iptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/hedeflerim/sil/' + goalId, function (response) {
+                        if (response.success) {
+                            toastr.success(response.message, 'Basarili');
+                            setTimeout(function () { location.reload(); }, 1000);
+                        } else {
+                            toastr.error(response.message, 'Hata');
+                        }
+                    }).fail(function () {
+                        toastr.error('Silme islemi sirasinda bir hata olustu.', 'Hata');
+                    });
+                }
+            });
+        });
+
+        // Tümünü onaya gönder
+        $('#btnSubmitAll').on('click', function () {
+            var periodId = $(this).data('period-id');
+            if (!periodId) {
+                toastr.warning('Lutfen once bir donem secin.', 'Uyari');
+                return;
+            }
+            Swal.fire({
+                title: 'Onaya Gonder',
+                text: "Tum taslak hedefler yonetici onayina gonderilecek. Devam etmek istiyor musunuz?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Gonder',
+                cancelButtonText: 'Iptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Form oluştur ve POST et
+                    var form = $('<form method="post" action="/hedeflerim/onizleme"></form>');
+                    form.append('<input type="hidden" name="periodId" value="' + periodId + '" />');
+                    form.append('@Html.AntiForgeryToken()');
+                    $('body').append(form);
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}

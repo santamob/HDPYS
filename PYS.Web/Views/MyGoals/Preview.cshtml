@@ -1,0 +1,159 @@
+@using PYS.Web.Services
+@using PYS.Core.Domain.Enums
+@model PYS.Web.ViewModels.MyGoals.PreviewGoalsViewModel
+@{
+    ViewData["Title"] = "Hedef Onizleme";
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Onizleme
+</h4>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="card-title mb-0"><i class="bx bx-show me-2"></i>Hedef Ozeti</h5>
+            <small class="text-muted">@Model.PeriodName</small>
+        </div>
+        <div>
+            @if (Model.CanSubmit)
+            {
+                <span class="badge bg-success"><i class="bx bx-check me-1"></i>Agirlik Tamam (%100)</span>
+            }
+            else
+            {
+                <span class="badge bg-warning"><i class="bx bx-error me-1"></i>Agirlik: %@Model.TotalWeight (Hedef: %100)</span>
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model.Goals.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Hedef Basligi</th>
+                            <th>Gosterge</th>
+                            <th class="text-center">Hedef Deger</th>
+                            <th class="text-center">Birim</th>
+                            <th class="text-center">Agirlik</th>
+                            <th class="text-center">Tarih Araligi</th>
+                            <th class="text-center">Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var index = 1; }
+                        @foreach (var goal in Model.Goals)
+                        {
+                            var statusClass = goal.Status switch
+                            {
+                                GoalStatus.Draft => "secondary",
+                                GoalStatus.PendingApproval => "warning",
+                                GoalStatus.Approved => "success",
+                                GoalStatus.Rejected => "danger",
+                                _ => "secondary"
+                            };
+                            <tr>
+                                <td>@index</td>
+                                <td>
+                                    <strong>@goal.GoalTitle</strong>
+                                    @if (!string.IsNullOrEmpty(goal.GoalDescription))
+                                    {
+                                        <br /><small class="text-muted">@(goal.GoalDescription.Length > 100 ? goal.GoalDescription.Substring(0, 100) + "..." : goal.GoalDescription)</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(goal.IndicatorName))
+                                    {
+                                        <small>@goal.IndicatorName</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Manuel</small>
+                                    }
+                                </td>
+                                <td class="text-center">@goal.TargetValue</td>
+                                <td class="text-center">@(goal.TargetUnit ?? "-")</td>
+                                <td class="text-center"><strong>%@goal.Weight</strong></td>
+                                <td class="text-center">
+                                    <small>@(goal.StartDate?.ToString("dd.MM.yyyy") ?? "-") - @(goal.EndDate?.ToString("dd.MM.yyyy") ?? "-")</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-label-@statusClass">@goal.StatusText</span>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="5" class="text-end"><strong>Toplam Agirlik:</strong></td>
+                            <td class="text-center">
+                                <strong class="@(Model.CanSubmit ? "text-success" : "text-danger")">%@Model.TotalWeight</strong>
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <p class="text-muted">Bu donem icin hedef bulunamadi.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Aksiyonlar -->
+<div class="d-flex justify-content-between">
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bx bx-arrow-back me-1"></i>Geri Don</a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" asp-action="Create" asp-route-periodId="@Model.PeriodId">
+            <i class="bx bx-edit me-1"></i>Duzenle
+        </a>
+        @if (Model.CanSubmit && Model.Goals.Any(g => g.Status == GoalStatus.Draft || g.Status == GoalStatus.Rejected))
+        {
+            <form asp-action="SubmitForApproval" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="periodId" value="@Model.PeriodId" />
+                <button type="submit" class="btn btn-success" id="btnSubmit">
+                    <i class="bx bx-send me-1"></i>Yonetici Onayina Gonder
+                </button>
+            </form>
+        }
+        else if (!Model.CanSubmit)
+        {
+            <button class="btn btn-success" disabled title="Toplam agirlik %100 olmalidir">
+                <i class="bx bx-send me-1"></i>Yonetici Onayina Gonder
+            </button>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#btnSubmit').on('click', function (e) {
+            e.preventDefault();
+            var form = $(this).closest('form');
+
+            Swal.fire({
+                title: 'Onaya Gonder',
+                text: "Hedefleriniz yonetici onayina gonderilecek. Bu islem sonrasi hedefler uzerinde degisiklik yapamazsiniz. Devam etmek istiyor musunuz?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Evet, Gonder',
+                cancelButtonText: 'Iptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}

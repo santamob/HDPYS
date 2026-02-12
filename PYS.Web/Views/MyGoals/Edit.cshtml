@@ -1,0 +1,154 @@
+@using PYS.Web.Services
+@using PYS.Core.Domain.Enums
+@model PYS.Web.ViewModels.MyGoals.EditGoalViewModel
+@{
+    ViewData["Title"] = "Hedef Duzenle";
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Hedef Duzenle
+</h4>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bx bx-edit me-2"></i>Hedef Bilgileri
+                    @if (Model.Status == GoalStatus.Rejected)
+                    {
+                        <span class="badge bg-label-danger ms-2">Reddedildi - Yeniden Duzenleniyor</span>
+                    }
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Donem</label>
+                        <p class="form-control-plaintext fw-medium">@Model.PeriodName</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.IndicatorName))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Gosterge</label>
+                            <p class="form-control-plaintext fw-medium">@Model.IndicatorName</p>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Hedef Basligi *</label>
+                        <input type="text" name="GoalTitle" class="form-control" value="@Model.GoalTitle" required maxlength="500">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Aciklama</label>
+                        <textarea name="GoalDescription" class="form-control" rows="3" maxlength="4000">@Model.GoalDescription</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Hedef Deger *</label>
+                            <input type="number" step="0.01" name="TargetValue" class="form-control" value="@Model.TargetValue" required min="0.01">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Birim</label>
+                            <input type="text" name="TargetUnit" class="form-control" value="@Model.TargetUnit" placeholder="%, adet, TL..." maxlength="50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Agirlik (%) *</label>
+                            <input type="number" step="0.01" name="Weight" class="form-control" id="weightInput" value="@Model.Weight" required min="1" max="100">
+                            <small class="text-muted">Diger hedeflerin toplami: %@Model.CurrentTotalWeight</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Baslangic Tarihi</label>
+                            <input type="date" name="StartDate" class="form-control" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Bitis Tarihi</label>
+                            <input type="date" name="EndDate" class="form-control" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Calisan Notu</label>
+                        <textarea name="EmployeeNote" class="form-control" rows="2" maxlength="2000">@Model.EmployeeNote</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a class="btn btn-outline-secondary" asp-action="Index">Iptal</a>
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Kaydet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sağ Panel: Ağırlık Bilgisi -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="text-primary"><i class="bx bx-bar-chart-alt-2 me-1"></i>Agirlik Durumu</h6>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Diger Hedefler</span>
+                    <span>%@Model.CurrentTotalWeight</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Bu Hedef</span>
+                    <span id="currentWeightDisplay">%@Model.Weight</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>Toplam</strong>
+                    <strong id="totalWeightDisplay">%@(Model.CurrentTotalWeight + Model.Weight)</strong>
+                </div>
+                <div class="progress mt-2" style="height: 8px;">
+                    <div id="weightProgressBar" class="progress-bar" role="progressbar"
+                         style="width: @Math.Min((double)(Model.CurrentTotalWeight + Model.Weight), 100)%;"
+                         aria-valuenow="@(Model.CurrentTotalWeight + Model.Weight)" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>Ipuclari</h6>
+                <ul class="mb-0 small text-muted">
+                    <li>Sadece Taslak veya Reddedildi durumundaki hedefler duzenlenebilir</li>
+                    <li>Toplam agirlik %100'u gecemez</li>
+                    <li>Bitis tarihi baslangic tarihinden once olamaz</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var otherWeight = @Model.CurrentTotalWeight;
+
+        $('#weightInput').on('change keyup', function () {
+            var currentWeight = parseFloat($(this).val()) || 0;
+            var total = otherWeight + currentWeight;
+            total = Math.round(total * 100) / 100;
+
+            $('#currentWeightDisplay').text('%' + currentWeight);
+            $('#totalWeightDisplay').text('%' + total);
+            $('#weightProgressBar').css('width', Math.min(total, 100) + '%');
+
+            if (total === 100) {
+                $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
+            } else if (total > 100) {
+                $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
+            } else {
+                $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
+            }
+        }).trigger('change');
+    </script>
+}

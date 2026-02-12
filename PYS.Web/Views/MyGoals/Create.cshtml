@@ -1,0 +1,273 @@
+@using PYS.Web.Services
+@model PYS.Web.ViewModels.MyGoals.CreateGoalViewModel
+@{
+    ViewData["Title"] = "Yeni Hedef";
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Yeni Hedef Ekle
+</h4>
+
+<form asp-action="Create" method="post" id="createGoalForm">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <!-- Sol Panel: Dönem ve Gösterge Seçimi -->
+        <div class="col-lg-5">
+            <!-- Dönem Seçimi -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bx bx-calendar me-2"></i>Donem Secimi</h5>
+                </div>
+                <div class="card-body">
+                    <select name="PeriodId" id="periodSelect" class="form-select" required>
+                        <option value="">Donem Secin</option>
+                        @foreach (var period in Model.Periods)
+                        {
+                            <option value="@period.Id" selected="@(Model.PeriodId == period.Id)">@period.DisplayName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Gösterge Havuzu -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bx bx-bar-chart me-2"></i>Gosterge Havuzu</h5>
+                    <input type="text" id="indicatorSearch" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Gosterge ara...">
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    @if (Model.Indicators.Any())
+                    {
+                        @foreach (var indicator in Model.Indicators)
+                        {
+                            <div class="form-check mb-2 indicator-item">
+                                <input class="form-check-input indicator-checkbox" type="checkbox"
+                                       value="@indicator.Id" id="indicator_@indicator.Id"
+                                       data-name="@indicator.IndicatorName"
+                                       data-desc="@indicator.IndicatorDesc"
+                                       data-category="@indicator.IndicatorCategory">
+                                <label class="form-check-label" for="indicator_@indicator.Id">
+                                    <strong>@indicator.IndicatorName</strong>
+                                    @if (!string.IsNullOrEmpty(indicator.FormTypeText))
+                                    {
+                                        <br /><small class="text-muted">@indicator.FormTypeText</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(indicator.IndicatorDesc))
+                                    {
+                                        <br /><small class="text-muted">@indicator.IndicatorDesc</small>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Gosterge bulunamadi.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Manuel Hedef Ekleme -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bx bx-plus-circle me-2"></i>Manuel Hedef Ekle</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">Gosterge havuzunda olmayan ozel bir hedef ekleyebilirsiniz.</p>
+                    <button type="button" class="btn btn-outline-primary w-100" id="btnAddManualGoal">
+                        <i class="bx bx-plus me-1"></i>Manuel Hedef Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Panel: Seçilen Hedefler ve Form -->
+        <div class="col-lg-7">
+            <!-- Ağırlık Durumu -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Toplam Agirlik</h6>
+                        <span id="totalWeightDisplay" class="badge bg-label-info">%0</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div id="weightProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted mt-1 d-block" id="weightHint">Toplam agirlik %100 olmalidir.</small>
+                </div>
+            </div>
+
+            <!-- Seçilen Hedefler -->
+            <div id="selectedGoalsContainer">
+                <!-- JavaScript ile doldurulacak -->
+            </div>
+
+            <!-- İpuçları -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>Ipuclari</h6>
+                    <ul class="mb-0 small text-muted">
+                        <li>Sol panelden gosterge secin veya manuel hedef ekleyin</li>
+                        <li>Her hedef icin baslik, deger, birim ve agirlik bilgilerini doldurun</li>
+                        <li>Toplam agirlik %100 olmalidir</li>
+                        <li>Ayni gosterge icin birden fazla hedef olusturulamaz</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Aksiyonlar -->
+            <div class="d-flex justify-content-end gap-2 mb-4">
+                <a class="btn btn-outline-secondary" asp-action="Index">Iptal</a>
+                <button type="submit" class="btn btn-primary" id="btnSaveDraft">
+                    <i class="bx bx-save me-1"></i>Taslak Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        var goalIndex = 0;
+
+        // Gösterge arama
+        $('#indicatorSearch').on('keyup', function () {
+            var searchText = $(this).val().toLowerCase();
+            $('.indicator-item').each(function () {
+                var name = $(this).find('label').text().toLowerCase();
+                $(this).toggle(name.indexOf(searchText) > -1);
+            });
+        });
+
+        // Gösterge checkbox değişikliği
+        $(document).on('change', '.indicator-checkbox', function () {
+            var indicatorId = $(this).val();
+            var indicatorName = $(this).data('name');
+            var indicatorDesc = $(this).data('desc');
+
+            if ($(this).is(':checked')) {
+                addGoalCard(indicatorId, indicatorName, indicatorDesc);
+            } else {
+                removeGoalCard(indicatorId);
+            }
+        });
+
+        // Manuel hedef ekleme
+        $('#btnAddManualGoal').on('click', function () {
+            addGoalCard(null, '', '');
+        });
+
+        function addGoalCard(indicatorId, indicatorName, indicatorDesc) {
+            var index = goalIndex++;
+            var idVal = indicatorId || '';
+            var titleVal = indicatorName || '';
+
+            var card = `
+                <div class="card mb-3 goal-card" data-indicator-id="${idVal}" data-index="${index}">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <h6 class="mb-0">${indicatorName ? indicatorName : 'Manuel Hedef'}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-remove-goal" data-indicator-id="${idVal}" data-index="${index}">
+                            <i class="bx bx-trash"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <input type="hidden" name="Goals[${index}].IndicatorId" value="${idVal}" />
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label">Hedef Basligi *</label>
+                                <input type="text" name="Goals[${index}].GoalTitle" class="form-control" value="${titleVal}" required maxlength="500">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Aciklama</label>
+                                <textarea name="Goals[${index}].GoalDescription" class="form-control" rows="2" maxlength="4000">${indicatorDesc || ''}</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Hedef Deger *</label>
+                                <input type="number" step="0.01" name="Goals[${index}].TargetValue" class="form-control" required min="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Birim</label>
+                                <input type="text" name="Goals[${index}].TargetUnit" class="form-control" placeholder="%, adet, TL..." maxlength="50">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Agirlik (%) *</label>
+                                <input type="number" step="0.01" name="Goals[${index}].Weight" class="form-control goal-weight" required min="1" max="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Baslangic Tarihi</label>
+                                <input type="date" name="Goals[${index}].StartDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Bitis Tarihi</label>
+                                <input type="date" name="Goals[${index}].EndDate" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Not</label>
+                                <textarea name="Goals[${index}].EmployeeNote" class="form-control" rows="1" maxlength="2000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#selectedGoalsContainer').append(card);
+            updateTotalWeight();
+        }
+
+        function removeGoalCard(indicatorId) {
+            if (indicatorId) {
+                $(`.goal-card[data-indicator-id="${indicatorId}"]`).remove();
+                $(`#indicator_${indicatorId}`).prop('checked', false);
+            }
+        }
+
+        // Kart silme butonu
+        $(document).on('click', '.btn-remove-goal', function () {
+            var indicatorId = $(this).data('indicator-id');
+            var card = $(this).closest('.goal-card');
+
+            if (indicatorId) {
+                $(`#indicator_${indicatorId}`).prop('checked', false);
+            }
+            card.remove();
+            updateTotalWeight();
+        });
+
+        // Ağırlık güncelleme
+        $(document).on('change keyup', '.goal-weight', function () {
+            updateTotalWeight();
+        });
+
+        function updateTotalWeight() {
+            var total = 0;
+            $('.goal-weight').each(function () {
+                var val = parseFloat($(this).val()) || 0;
+                total += val;
+            });
+            total = Math.round(total * 100) / 100;
+
+            $('#totalWeightDisplay').text('%' + total);
+            $('#weightProgressBar').css('width', Math.min(total, 100) + '%');
+
+            if (total === 100) {
+                $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
+                $('#weightHint').text('Agirlik %100 - Tamamlandi!').removeClass('text-danger text-warning').addClass('text-success');
+            } else if (total > 100) {
+                $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
+                $('#weightHint').text('Agirlik %100\'u asmasin!').removeClass('text-success text-warning').addClass('text-danger');
+            } else {
+                $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
+                $('#weightHint').text('Toplam agirlik %100 olmalidir. Kalan: %' + (100 - total)).removeClass('text-success text-danger').addClass('text-warning');
+            }
+        }
+
+        // Form gönderilmeden kontrol
+        $('#createGoalForm').on('submit', function (e) {
+            var goalCount = $('.goal-card').length;
+            if (goalCount === 0) {
+                e.preventDefault();
+                toastr.warning('Lutfen en az bir hedef ekleyin.', 'Uyari');
+                return false;
+            }
+        });
+    </script>
+}

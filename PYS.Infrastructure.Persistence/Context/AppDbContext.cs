@@ -40,6 +40,8 @@ namespace PYS.Infrastructure.Persistence.Context
 
         public DbSet<PeriodInUser> PeriodInUsers { get; set; }
 
+        public DbSet<EmployeeGoal> EmployeeGoals { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
