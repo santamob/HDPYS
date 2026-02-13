@@ -12,7 +12,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Dtos
         public string PeriodName { get; set; } = string.Empty;
         public Guid? IndicatorId { get; set; }
         public string? IndicatorName { get; set; }
-        public Guid EmployeeId { get; set; }
+        public Guid PeriodInUserId { get; set; }
         public string GoalTitle { get; set; } = string.Empty;
         public string? GoalDescription { get; set; }
         public decimal TargetValue { get; set; }

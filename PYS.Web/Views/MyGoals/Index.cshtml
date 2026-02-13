@@ -9,7 +9,6 @@
     <span class="text-muted fw-light">Performans /</span> Hedeflerim
 </h4>
 
-<!-- Dashboard Kartları -->
 <div class="row mb-4">
     <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
         <div class="card h-100">
@@ -73,20 +72,19 @@
                     <span class="avatar-initial rounded-circle bg-label-info"><i class="bx bx-bar-chart-alt-2"></i></span>
                 </div>
                 <h5 class="mb-0">%@Model.TotalWeight</h5>
-                <small class="text-muted">Toplam Agirlik</small>
+                <small class="text-muted">Toplam Ağırlık</small>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Filtreler ve Aksiyonlar -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label">Donem</label>
+                <label class="form-label">Dönem</label>
                 <select name="periodId" class="form-select">
-                    <option value="">Tum Donemler</option>
+                    <option value="">Tüm Dönemler</option>
                     @foreach (var period in Model.Periods)
                     {
                         <option value="@period.Id" selected="@(Model.SelectedPeriodId == period.Id)">@period.DisplayName</option>
@@ -96,10 +94,10 @@
             <div class="col-md-3">
                 <label class="form-label">Durum</label>
                 <select name="status" class="form-select">
-                    <option value="">Tum Durumlar</option>
+                    <option value="">Tüm Durumlar</option>
                     <option value="0" selected="@(Model.SelectedStatus == 0)">Taslak</option>
                     <option value="1" selected="@(Model.SelectedStatus == 1)">Onay Bekliyor</option>
-                    <option value="2" selected="@(Model.SelectedStatus == 2)">Onaylandi</option>
+                    <option value="2" selected="@(Model.SelectedStatus == 2)">Onaylandı</option>
                     <option value="3" selected="@(Model.SelectedStatus == 3)">Reddedildi</option>
                 </select>
             </div>
@@ -111,7 +109,7 @@
                 @if (Model.TotalWeight == 100 && Model.DraftCount > 0)
                 {
                     <button type="button" class="btn btn-success ms-2" id="btnSubmitAll" data-period-id="@Model.SelectedPeriodId">
-                        <i class="bx bx-send me-1"></i>Tumunu Onaya Gonder
+                        <i class="bx bx-send me-1"></i>Tümünü Onaya Gönder
                     </button>
                 }
             </div>
@@ -119,7 +117,6 @@
     </div>
 </div>
 
-<!-- Hedef Kartları -->
 @if (Model.Goals.Any())
 {
     <div class="row">
@@ -157,7 +154,7 @@
                                 @if (goal.Status == GoalStatus.Draft || goal.Status == GoalStatus.Rejected)
                                 {
                                     <a class="dropdown-item" asp-action="Edit" asp-route-id="@goal.Id">
-                                        <i class="bx bx-edit-alt me-1"></i> Duzenle
+                                        <i class="bx bx-edit-alt me-1"></i> Düzenle
                                     </a>
                                 }
                                 @if (goal.Status == GoalStatus.Draft)
@@ -173,19 +170,19 @@
                         @if (!string.IsNullOrEmpty(goal.IndicatorName))
                         {
                             <div class="mb-2">
-                                <small class="text-muted"><i class="bx bx-bar-chart me-1"></i>Gosterge:</small>
+                                <small class="text-muted"><i class="bx bx-bar-chart me-1"></i>Gösterge:</small>
                                 <br />
                                 <small class="fw-medium">@goal.IndicatorName</small>
                             </div>
                         }
                         <div class="d-flex justify-content-between mb-2">
                             <div>
-                                <small class="text-muted">Hedef Deger</small>
+                                <small class="text-muted">Hedef Değer</small>
                                 <br />
                                 <span class="fw-medium">@goal.TargetValue @goal.TargetUnit</span>
                             </div>
                             <div class="text-end">
-                                <small class="text-muted">Agirlik</small>
+                                <small class="text-muted">Ağırlık</small>
                                 <br />
                                 <span class="fw-medium">%@goal.Weight</span>
                             </div>
@@ -206,7 +203,7 @@
                         @if (!string.IsNullOrEmpty(goal.ManagerNote))
                         {
                             <div class="alert alert-sm alert-warning py-1 px-2 mb-0 mt-2">
-                                <small><i class="bx bx-comment me-1"></i><strong>Yonetici Notu:</strong> @goal.ManagerNote</small>
+                                <small><i class="bx bx-comment me-1"></i><strong>Yönetici Notu:</strong> @goal.ManagerNote</small>
                             </div>
                         }
                     </div>
@@ -221,12 +218,11 @@
         }
     </div>
 
-    <!-- Önizleme Butonu -->
     @if (Model.SelectedPeriodId.HasValue && Model.Goals.Any())
     {
         <div class="text-center mt-3">
             <a class="btn btn-outline-info" asp-action="Preview" asp-route-periodId="@Model.SelectedPeriodId">
-                <i class="bx bx-show me-1"></i>Donemi Onizle
+                <i class="bx bx-show me-1"></i>Dönemi Önizle
             </a>
         </div>
     }
@@ -236,8 +232,8 @@ else
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="bx bx-target-lock bx-lg text-muted mb-3"></i>
-            <h5 class="text-muted">Henuz hedef eklenmemis</h5>
-            <p class="text-muted">Yeni hedef eklemek icin asagidaki butonu kullanin.</p>
+            <h5 class="text-muted">Henüz hedef eklenmemiş</h5>
+            <p class="text-muted">Yeni hedef eklemek için aşağıdaki butonu kullanın.</p>
             <a class="btn btn-primary" asp-action="Create"><i class="bx bx-plus me-1"></i>Yeni Hedef Ekle</a>
         </div>
     </div>
@@ -250,24 +246,24 @@ else
             var goalId = $(this).data('id');
             Swal.fire({
                 title: 'Emin misiniz?',
-                text: "Bu hedef kalici olarak silinecektir!",
+                text: "Bu hedef kalıcı olarak silinecektir!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Evet, Sil',
-                cancelButtonText: 'Iptal'
+                cancelButtonText: 'İptal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.post('/hedeflerim/sil/' + goalId, function (response) {
                         if (response.success) {
-                            toastr.success(response.message, 'Basarili');
+                            toastr.success(response.message, 'Başarılı');
                             setTimeout(function () { location.reload(); }, 1000);
                         } else {
                             toastr.error(response.message, 'Hata');
                         }
                     }).fail(function () {
-                        toastr.error('Silme islemi sirasinda bir hata olustu.', 'Hata');
+                        toastr.error('Silme işlemi sırasında bir hata oluştu.', 'Hata');
                     });
                 }
             });
@@ -277,18 +273,18 @@ else
         $('#btnSubmitAll').on('click', function () {
             var periodId = $(this).data('period-id');
             if (!periodId) {
-                toastr.warning('Lutfen once bir donem secin.', 'Uyari');
+                toastr.warning('Lütfen önce bir dönem seçin.', 'Uyarı');
                 return;
             }
             Swal.fire({
-                title: 'Onaya Gonder',
-                text: "Tum taslak hedefler yonetici onayina gonderilecek. Devam etmek istiyor musunuz?",
+                title: 'Onaya Gönder',
+                text: "Tüm taslak hedefler yönetici onayına gönderilecek. Devam etmek istiyor musunuz?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#28a745',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Gonder',
-                cancelButtonText: 'Iptal'
+                confirmButtonText: 'Gönder',
+                cancelButtonText: 'İptal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Form oluştur ve POST et

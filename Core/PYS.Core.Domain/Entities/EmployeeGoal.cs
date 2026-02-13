@@ -6,13 +6,20 @@ namespace PYS.Core.Domain.Entities
     /// <summary>
     /// Çalışan hedef girişi entity'si.
     /// Çalışanların performans hedeflerini oluşturup yönetici onayına gönderdiği kayıtları temsil eder.
+    /// PeriodInUser tablosu üzerinden SAP çalışan verisiyle ilişkilendirilir.
     /// </summary>
     public class EmployeeGoal : EntityBase
     {
         /// <summary>
-        /// Hedefin ait olduğu dönem
+        /// Hedefin ait olduğu dönem (PeriodInUser üzerinden de erişilebilir, doğrudan filtreleme kolaylığı için tutulur)
         /// </summary>
         public Guid PeriodId { get; set; }
+
+        /// <summary>
+        /// PeriodInUser tablosundaki kayıt - Çalışanın dönem atamasını temsil eder.
+        /// SAP PerNr, yönetici bilgisi (MPernr), organizasyon bilgisi buradan gelir.
+        /// </summary>
+        public Guid PeriodInUserId { get; set; }
 
         /// <summary>
         /// Seçilen gösterge (Indicators tablosundan)
@@ -20,12 +27,7 @@ namespace PYS.Core.Domain.Entities
         public Guid? IndicatorId { get; set; }
 
         /// <summary>
-        /// Hedefi oluşturan çalışanın ID'si (AppUser)
-        /// </summary>
-        public Guid EmployeeId { get; set; }
-
-        /// <summary>
-        /// Onaylayan yöneticinin ID'si (AppUsers.M_Pernr kolonundan SAP yönetici)
+        /// Onaylayan yöneticinin ID'si (AppUser)
         /// </summary>
         public Guid? ApprovedByManagerId { get; set; }
 
@@ -115,6 +117,11 @@ namespace PYS.Core.Domain.Entities
         /// İlişkili dönem
         /// </summary>
         public Periods Period { get; set; } = null!;
+
+        /// <summary>
+        /// İlişkili PeriodInUser kaydı (çalışan-dönem ilişkisi, SAP verileri)
+        /// </summary>
+        public PeriodInUser PeriodInUser { get; set; } = null!;
 
         /// <summary>
         /// İlişkili gösterge

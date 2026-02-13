@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PYS.Core.Application.Features.EmployeeGoalFeature.Rules;
 using PYS.Core.Application.Interfaces.Context;
@@ -8,16 +9,19 @@ using PYS.Core.Domain.Enums;
 using SantaFarma.Architecture.Core.Application.Bases;
 using SantaFarma.Architecture.Core.Application.Interfaces.ContextServices;
 using SantaFarma.Architecture.Core.Application.Interfaces.UnitOfWorks;
+using SantaFarma.Architecture.Core.Domain.Entities;
 
 namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.CreateGoal
 {
     /// <summary>
     /// Hedef oluşturma komutu handler'ı.
     /// Çalışanın seçtiği dönem için hedeflerini kaydeder.
+    /// PeriodInUser tablosu üzerinden SAP çalışan doğrulaması yapılır.
     /// </summary>
     public class CreateGoalCommandHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
         IUserContextService userContextService,
+        UserManager<AppUser> userManager,
         IMapper mapper,
         ILogger<CreateGoalCommandHandler> logger,
         CreateGoalCommandValidator validator,
@@ -40,13 +44,35 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.CreateGoal
 
             try
             {
-                var employeeId = userContextService.UserId;
+                // Giriş yapan kullanıcının SAP PerNr bilgisini al
+                var appUser = await userManager.FindByIdAsync(userContextService.UserId.ToString());
+                if (appUser == null)
+                {
+                    return new CreateGoalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Kullanıcı bilgisi bulunamadı." }
+                    };
+                }
+
+                var userEmail = appUser.Email!.ToUpperInvariant();
+
+                // PeriodInUser kaydını bul (çalışanın bu döneme atanmış olması gerekir)
+                var periodInUser = await unitOfWork.GetAppReadRepository<PeriodInUser>()
+                    .GetAsync(p => p.Mail.ToUpper() == userEmail && p.PeriodId == request.PeriodId && p.IsActive);
+
+                if (periodInUser == null)
+                {
+                    return new CreateGoalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Bu dönem için kayıtlı çalışan bilginiz bulunamadı. Lütfen yöneticinizle iletişime geçin." }
+                    };
+                }
 
                 // Mevcut toplam ağırlığı hesapla (aynı dönem, aynı çalışan, aktif hedefler)
                 var existingGoals = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                    .GetAllAsync(g => g.PeriodId == request.PeriodId
-                                      && g.EmployeeId == employeeId
-                                      && g.IsActive);
+                    .GetAllAsync(g => g.PeriodInUserId == periodInUser.Id && g.IsActive);
 
                 var currentTotalWeight = existingGoals.Sum(g => g.Weight);
                 var newTotalWeight = request.Goals.Sum(g => g.Weight);
@@ -70,8 +96,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.CreateGoal
                     if (goalItem.IndicatorId.HasValue)
                     {
                         var existingGoal = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                            .GetAsync(g => g.PeriodId == request.PeriodId
-                                          && g.EmployeeId == employeeId
+                            .GetAsync(g => g.PeriodInUserId == periodInUser.Id
                                           && g.IndicatorId == goalItem.IndicatorId
                                           && g.IsActive);
 
@@ -89,8 +114,8 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.CreateGoal
                     var goal = new EmployeeGoal
                     {
                         PeriodId = request.PeriodId,
+                        PeriodInUserId = periodInUser.Id,
                         IndicatorId = goalItem.IndicatorId,
-                        EmployeeId = employeeId,
                         GoalTitle = goalItem.GoalTitle,
                         GoalDescription = goalItem.GoalDescription,
                         TargetValue = goalItem.TargetValue,

@@ -11,16 +11,14 @@
 <form asp-action="Create" method="post" id="createGoalForm">
     @Html.AntiForgeryToken()
     <div class="row">
-        <!-- Sol Panel: Dönem ve Gösterge Seçimi -->
         <div class="col-lg-5">
-            <!-- Dönem Seçimi -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="bx bx-calendar me-2"></i>Donem Secimi</h5>
+                    <h5 class="card-title mb-0"><i class="bx bx-calendar me-2"></i>Dönem Seçimi</h5>
                 </div>
                 <div class="card-body">
                     <select name="PeriodId" id="periodSelect" class="form-select" required>
-                        <option value="">Donem Secin</option>
+                        <option value="">Dönem Seçin</option>
                         @foreach (var period in Model.Periods)
                         {
                             <option value="@period.Id" selected="@(Model.PeriodId == period.Id)">@period.DisplayName</option>
@@ -29,11 +27,10 @@
                 </div>
             </div>
 
-            <!-- Gösterge Havuzu -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0"><i class="bx bx-bar-chart me-2"></i>Gosterge Havuzu</h5>
-                    <input type="text" id="indicatorSearch" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Gosterge ara...">
+                    <h5 class="card-title mb-0"><i class="bx bx-bar-chart me-2"></i>Gösterge Havuzu</h5>
+                    <input type="text" id="indicatorSearch" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Gösterge ara...">
                 </div>
                 <div class="card-body" style="max-height: 400px; overflow-y: auto;">
                     @if (Model.Indicators.Any())
@@ -50,11 +47,15 @@
                                     <strong>@indicator.IndicatorName</strong>
                                     @if (!string.IsNullOrEmpty(indicator.FormTypeText))
                                     {
-                                        <br /><small class="text-muted">@indicator.FormTypeText</small>
+                                        <br />
+
+                                        <small class="text-muted">@indicator.FormTypeText</small>
                                     }
                                     @if (!string.IsNullOrEmpty(indicator.IndicatorDesc))
                                     {
-                                        <br /><small class="text-muted">@indicator.IndicatorDesc</small>
+                                        <br />
+
+                                        <small class="text-muted">@indicator.IndicatorDesc</small>
                                     }
                                 </label>
                             </div>
@@ -62,18 +63,17 @@
                     }
                     else
                     {
-                        <p class="text-muted text-center mb-0">Gosterge bulunamadi.</p>
+                        <p class="text-muted text-center mb-0">Gösterge bulunamadı.</p>
                     }
                 </div>
             </div>
 
-            <!-- Manuel Hedef Ekleme -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0"><i class="bx bx-plus-circle me-2"></i>Manuel Hedef Ekle</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted small">Gosterge havuzunda olmayan ozel bir hedef ekleyebilirsiniz.</p>
+                    <p class="text-muted small">Gösterge havuzunda olmayan özel bir hedef ekleyebilirsiniz.</p>
                     <button type="button" class="btn btn-outline-primary w-100" id="btnAddManualGoal">
                         <i class="bx bx-plus me-1"></i>Manuel Hedef Ekle
                     </button>
@@ -81,43 +81,37 @@
             </div>
         </div>
 
-        <!-- Sağ Panel: Seçilen Hedefler ve Form -->
         <div class="col-lg-7">
-            <!-- Ağırlık Durumu -->
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Toplam Agirlik</h6>
+                        <h6 class="mb-0">Toplam Ağırlık</h6>
                         <span id="totalWeightDisplay" class="badge bg-label-info">%0</span>
                     </div>
                     <div class="progress" style="height: 8px;">
                         <div id="weightProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <small class="text-muted mt-1 d-block" id="weightHint">Toplam agirlik %100 olmalidir.</small>
+                    <small class="text-muted mt-1 d-block" id="weightHint">Toplam ağırlık %100 olmalıdır.</small>
                 </div>
             </div>
 
-            <!-- Seçilen Hedefler -->
             <div id="selectedGoalsContainer">
-                <!-- JavaScript ile doldurulacak -->
             </div>
 
-            <!-- İpuçları -->
             <div class="card mb-4">
                 <div class="card-body">
-                    <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>Ipuclari</h6>
+                    <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>İpuçları</h6>
                     <ul class="mb-0 small text-muted">
-                        <li>Sol panelden gosterge secin veya manuel hedef ekleyin</li>
-                        <li>Her hedef icin baslik, deger, birim ve agirlik bilgilerini doldurun</li>
-                        <li>Toplam agirlik %100 olmalidir</li>
-                        <li>Ayni gosterge icin birden fazla hedef olusturulamaz</li>
+                        <li>Sol panelden gösterge seçin veya manuel hedef ekleyin</li>
+                        <li>Her hedef için başlık, değer, birim ve ağırlık bilgilerini doldurun</li>
+                        <li>Toplam ağırlık %100 olmalıdır</li>
+                        <li>Aynı gösterge için birden fazla hedef oluşturulamaz</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Aksiyonlar -->
             <div class="d-flex justify-content-end gap-2 mb-4">
-                <a class="btn btn-outline-secondary" asp-action="Index">Iptal</a>
+                <a class="btn btn-outline-secondary" asp-action="Index">İptal</a>
                 <button type="submit" class="btn btn-primary" id="btnSaveDraft">
                     <i class="bx bx-save me-1"></i>Taslak Kaydet
                 </button>
@@ -174,15 +168,15 @@
                         <input type="hidden" name="Goals[${index}].IndicatorId" value="${idVal}" />
                         <div class="row g-2">
                             <div class="col-12">
-                                <label class="form-label">Hedef Basligi *</label>
+                                <label class="form-label">Hedef Başlığı *</label>
                                 <input type="text" name="Goals[${index}].GoalTitle" class="form-control" value="${titleVal}" required maxlength="500">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Aciklama</label>
+                                <label class="form-label">Açıklama</label>
                                 <textarea name="Goals[${index}].GoalDescription" class="form-control" rows="2" maxlength="4000">${indicatorDesc || ''}</textarea>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Hedef Deger *</label>
+                                <label class="form-label">Hedef Değer *</label>
                                 <input type="number" step="0.01" name="Goals[${index}].TargetValue" class="form-control" required min="0.01">
                             </div>
                             <div class="col-md-4">
@@ -190,15 +184,15 @@
                                 <input type="text" name="Goals[${index}].TargetUnit" class="form-control" placeholder="%, adet, TL..." maxlength="50">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label">Agirlik (%) *</label>
+                                <label class="form-label">Ağırlık (%) *</label>
                                 <input type="number" step="0.01" name="Goals[${index}].Weight" class="form-control goal-weight" required min="1" max="100">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Baslangic Tarihi</label>
+                                <label class="form-label">Başlangıç Tarihi</label>
                                 <input type="date" name="Goals[${index}].StartDate" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Bitis Tarihi</label>
+                                <label class="form-label">Bitiş Tarihi</label>
                                 <input type="date" name="Goals[${index}].EndDate" class="form-control">
                             </div>
                             <div class="col-12">
@@ -250,13 +244,13 @@
 
             if (total === 100) {
                 $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
-                $('#weightHint').text('Agirlik %100 - Tamamlandi!').removeClass('text-danger text-warning').addClass('text-success');
+                $('#weightHint').text('Ağırlık %100 - Tamamlandı!').removeClass('text-danger text-warning').addClass('text-success');
             } else if (total > 100) {
                 $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
-                $('#weightHint').text('Agirlik %100\'u asmasin!').removeClass('text-success text-warning').addClass('text-danger');
+                $('#weightHint').text('Ağırlık %100\'ü aşmasın!').removeClass('text-success text-warning').addClass('text-danger');
             } else {
                 $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
-                $('#weightHint').text('Toplam agirlik %100 olmalidir. Kalan: %' + (100 - total)).removeClass('text-success text-danger').addClass('text-warning');
+                $('#weightHint').text('Toplam ağırlık %100 olmalıdır. Kalan: %' + (100 - total)).removeClass('text-success text-danger').addClass('text-warning');
             }
         }
 
@@ -265,7 +259,7 @@
             var goalCount = $('.goal-card').length;
             if (goalCount === 0) {
                 e.preventDefault();
-                toastr.warning('Lutfen en az bir hedef ekleyin.', 'Uyari');
+                toastr.warning('Lütfen en az bir hedef ekleyin.', 'Uyarı');
                 return false;
             }
         });

@@ -1,5 +1,7 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PYS.Core.Application.Features.EmployeeGoalFeature.Rules;
 using PYS.Core.Application.Interfaces.Context;
@@ -8,16 +10,19 @@ using PYS.Core.Domain.Enums;
 using SantaFarma.Architecture.Core.Application.Bases;
 using SantaFarma.Architecture.Core.Application.Interfaces.ContextServices;
 using SantaFarma.Architecture.Core.Application.Interfaces.UnitOfWorks;
+using SantaFarma.Architecture.Core.Domain.Entities;
 
 namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForApproval
 {
     /// <summary>
     /// Hedefleri yönetici onayına gönderme handler'ı.
     /// PeriodInUser tablosundaki MPernr kolonundan yönetici bilgisi çekilir.
+    /// Yöneticinin AppUser kaydı RegistrationNumber == MPernr eşleşmesiyle bulunur.
     /// </summary>
     public class SubmitForApprovalCommandHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
         IUserContextService userContextService,
+        UserManager<AppUser> userManager,
         IMapper mapper,
         ILogger<SubmitForApprovalCommandHandler> logger,
         EmployeeGoalRules goalRules
@@ -28,12 +33,35 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForAp
         {
             try
             {
-                var employeeId = userContextService.UserId;
+                // Giriş yapan kullanıcının SAP PerNr bilgisini al
+                var appUser = await userManager.FindByIdAsync(userContextService.UserId.ToString());
+                if (appUser == null)
+                {
+                    return new SubmitForApprovalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Kullanıcı bilgisi bulunamadı." }
+                    };
+                }
+
+                var userEmail = appUser.Email!.ToUpperInvariant();
+
+                // PeriodInUser kaydını bul
+                var periodInUser = await unitOfWork.GetAppReadRepository<PeriodInUser>()
+                    .GetAsync(p => p.Mail.ToUpper() == userEmail && p.PeriodId == request.PeriodId && p.IsActive);
+
+                if (periodInUser == null)
+                {
+                    return new SubmitForApprovalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Bu dönem için kayıtlı çalışan bilginiz bulunamadı." }
+                    };
+                }
 
                 // Çalışanın bu dönemdeki gönderilebilir hedeflerini al
                 var goals = (await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                    .GetAllAsync(g => g.PeriodId == request.PeriodId
-                                      && g.EmployeeId == employeeId
+                    .GetAllAsync(g => g.PeriodInUserId == periodInUser.Id
                                       && g.IsActive
                                       && (g.Status == GoalStatus.Draft || g.Status == GoalStatus.Rejected)))
                     .ToList();
@@ -60,9 +88,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForAp
 
                 // Toplam ağırlık kontrolü - tüm aktif hedeflerin toplamı %100 olmalı
                 var allActiveGoals = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                    .GetAllAsync(g => g.PeriodId == request.PeriodId
-                                      && g.EmployeeId == employeeId
-                                      && g.IsActive);
+                    .GetAllAsync(g => g.PeriodInUserId == periodInUser.Id && g.IsActive);
 
                 var totalWeight = allActiveGoals.Sum(g => g.Weight);
                 if (totalWeight != 100)
@@ -74,10 +100,24 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForAp
                     };
                 }
 
-                // Hedefleri PendingApproval durumuna al
+                // Yönetici bilgisini PeriodInUser.MPernr üzerinden çöz
+                Guid? managerId = null;
+                if (periodInUser.MPernr.HasValue)
+                {
+                    var allUsers = userManager.Users;
+                    var managerUser = await allUsers
+                        .FirstOrDefaultAsync(u => u.RegistrationNumber == periodInUser.MPernr.Value, cancellationToken);
+                    managerId = managerUser?.Id;
+                }
+
+                // Hedefleri PendingApproval durumuna al ve yöneticiyi ata
                 foreach (var goal in goals)
                 {
                     goal.Status = GoalStatus.PendingApproval;
+                    if (managerId.HasValue)
+                    {
+                        goal.ApprovedByManagerId = managerId.Value;
+                    }
                     await unitOfWork.GetAppWriteRepository<EmployeeGoal>().UpdateAsync(goal);
                 }
 

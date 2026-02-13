@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PYS.Core.Application.Features.EmployeeGoalFeature.Dtos;
@@ -9,16 +10,19 @@ using PYS.Core.Domain.Enums;
 using SantaFarma.Architecture.Core.Application.Bases;
 using SantaFarma.Architecture.Core.Application.Interfaces.ContextServices;
 using SantaFarma.Architecture.Core.Application.Interfaces.UnitOfWorks;
+using SantaFarma.Architecture.Core.Domain.Entities;
 
 namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
 {
     /// <summary>
     /// Çalışanın kendi hedeflerini getiren handler.
     /// Dashboard istatistikleri ve filtreleme destekler.
+    /// PeriodInUser tablosu üzerinden SAP çalışan eşleşmesi yapılır.
     /// </summary>
     public class GetMyGoalsQueryHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
         IUserContextService userContextService,
+        UserManager<AppUser> userManager,
         IMapper mapper,
         ILogger<GetMyGoalsQueryHandler> logger
     ) : BaseHandler<IAppDbContext, GetMyGoalsQueryHandler>(unitOfWork, mapper, logger),
@@ -26,12 +30,29 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
     {
         public async Task<GetMyGoalsQueryResponse> Handle(GetMyGoalsQueryRequest request, CancellationToken cancellationToken)
         {
-            var employeeId = userContextService.UserId;
+            // Giriş yapan kullanıcının SAP PerNr bilgisini al
+            var appUser = await userManager.FindByIdAsync(userContextService.UserId.ToString());
+            if (appUser == null)
+            {
+                return new GetMyGoalsQueryResponse();
+            }
+
+            var userEmail = appUser.Email!.ToUpperInvariant();
+
+            // Bu kullanıcının tüm PeriodInUser kayıtlarını bul
+            var periodInUsers = await unitOfWork.GetAppReadRepository<PeriodInUser>()
+                .GetAllAsync(p => p.Mail.ToUpper() == userEmail && p.IsActive);
+            var periodInUserIds = periodInUsers.Select(p => p.Id).ToList();
+
+            if (!periodInUserIds.Any())
+            {
+                return new GetMyGoalsQueryResponse();
+            }
 
             // Tüm aktif hedefleri çek (istatistik hesabı için)
             var allGoals = (await unitOfWork.GetAppReadRepository<EmployeeGoal>()
                 .GetAllAsync(
-                    predicate: g => g.EmployeeId == employeeId && g.IsActive,
+                    predicate: g => periodInUserIds.Contains(g.PeriodInUserId) && g.IsActive,
                     include: x => x.Include(g => g.Period).Include(g => g.Indicator!)))
                 .ToList();
 
@@ -57,7 +78,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
                 PeriodName = g.Period != null ? $"{g.Period.Year} - {g.Period.Term}" : "",
                 IndicatorId = g.IndicatorId,
                 IndicatorName = g.Indicator?.IndicatorName,
-                EmployeeId = g.EmployeeId,
+                PeriodInUserId = g.PeriodInUserId,
                 GoalTitle = g.GoalTitle,
                 GoalDescription = g.GoalDescription,
                 TargetValue = g.TargetValue,

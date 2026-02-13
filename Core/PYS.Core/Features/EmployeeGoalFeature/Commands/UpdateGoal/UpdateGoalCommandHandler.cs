@@ -1,5 +1,7 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PYS.Core.Application.Features.EmployeeGoalFeature.Rules;
 using PYS.Core.Application.Interfaces.Context;
@@ -8,16 +10,19 @@ using PYS.Core.Domain.Enums;
 using SantaFarma.Architecture.Core.Application.Bases;
 using SantaFarma.Architecture.Core.Application.Interfaces.ContextServices;
 using SantaFarma.Architecture.Core.Application.Interfaces.UnitOfWorks;
+using SantaFarma.Architecture.Core.Domain.Entities;
 
 namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.UpdateGoal
 {
     /// <summary>
     /// Hedef güncelleme komutu handler'ı.
     /// Sadece Draft veya Rejected durumundaki hedefler güncellenebilir.
+    /// PeriodInUser üzerinden sahiplik doğrulaması yapılır.
     /// </summary>
     public class UpdateGoalCommandHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
         IUserContextService userContextService,
+        UserManager<AppUser> userManager,
         IMapper mapper,
         ILogger<UpdateGoalCommandHandler> logger,
         UpdateGoalCommandValidator validator,
@@ -40,11 +45,21 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.UpdateGoal
 
             try
             {
-                var employeeId = userContextService.UserId;
+                // Giriş yapan kullanıcının SAP PerNr bilgisini al
+                var appUser = await userManager.FindByIdAsync(userContextService.UserId.ToString());
+                if (appUser == null)
+                {
+                    return new UpdateGoalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Kullanıcı bilgisi bulunamadı." }
+                    };
+                }
 
-                // Hedefi bul
+                // Hedefi bul (PeriodInUser dahil)
                 var goal = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                    .GetAsync(g => g.Id == request.Id && g.EmployeeId == employeeId && g.IsActive);
+                    .GetAsync(g => g.Id == request.Id && g.IsActive,
+                        include: x => x.Include(g => g.PeriodInUser));
 
                 // Hedef mevcut mu?
                 var existCheck = await goalRules.GoalShouldExist(goal);
@@ -57,8 +72,18 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.UpdateGoal
                     };
                 }
 
+                // Sahiplik kontrolü - PeriodInUser.Mail eşleşmeli
+                if (!string.Equals(goal!.PeriodInUser.Mail, appUser.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new UpdateGoalCommandResponse
+                    {
+                        Success = false,
+                        Errors = new List<string> { "Bu hedefe erişim yetkiniz bulunmamaktadır." }
+                    };
+                }
+
                 // Düzenlenebilir durumda mı?
-                var editableCheck = await goalRules.GoalShouldBeEditableStatus(goal!.Status);
+                var editableCheck = await goalRules.GoalShouldBeEditableStatus(goal.Status);
                 if (!editableCheck.IsSuccess)
                 {
                     return new UpdateGoalCommandResponse
@@ -70,8 +95,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.UpdateGoal
 
                 // Ağırlık kontrolü - mevcut hedefin ağırlığını çıkar, yeni ağırlığı ekle
                 var allGoals = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                    .GetAllAsync(g => g.PeriodId == goal.PeriodId
-                                      && g.EmployeeId == employeeId
+                    .GetAllAsync(g => g.PeriodInUserId == goal.PeriodInUserId
                                       && g.Id != request.Id
                                       && g.IsActive);
 

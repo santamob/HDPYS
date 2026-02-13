@@ -3,7 +3,11 @@
     "allow": [
       "Bash(dotnet ef migrations add:*)",
       "Bash(dotnet ef database update:*)",
-      "Bash(sqlcmd:*)"
+      "Bash(sqlcmd:*)",
+      "Bash(dotnet build:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(powershell:*)"
     ]
   }
 }

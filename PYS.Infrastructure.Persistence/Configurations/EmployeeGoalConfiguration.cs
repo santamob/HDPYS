@@ -70,14 +70,19 @@ namespace PYS.Infrastructure.Persistence.Configurations
                 .HasForeignKey(x => x.PeriodId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(x => x.PeriodInUser)
+                .WithMany()
+                .HasForeignKey(x => x.PeriodInUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(x => x.Indicator)
                 .WithMany()
                 .HasForeignKey(x => x.IndicatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // İndeksler - Performans optimizasyonu
-            builder.HasIndex(x => new { x.PeriodId, x.EmployeeId });
-            builder.HasIndex(x => new { x.PeriodId, x.EmployeeId, x.IndicatorId })
+            builder.HasIndex(x => new { x.PeriodId, x.PeriodInUserId });
+            builder.HasIndex(x => new { x.PeriodInUserId, x.IndicatorId })
                 .IsUnique()
                 .HasFilter("[IndicatorId] IS NOT NULL AND [IsActive] = 1");
             builder.HasIndex(x => x.Status);

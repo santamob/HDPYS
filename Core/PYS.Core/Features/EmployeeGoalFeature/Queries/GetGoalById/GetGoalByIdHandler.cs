@@ -1,5 +1,6 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PYS.Core.Application.Features.EmployeeGoalFeature.Dtos;
@@ -9,15 +10,18 @@ using PYS.Core.Domain.Enums;
 using SantaFarma.Architecture.Core.Application.Bases;
 using SantaFarma.Architecture.Core.Application.Interfaces.ContextServices;
 using SantaFarma.Architecture.Core.Application.Interfaces.UnitOfWorks;
+using SantaFarma.Architecture.Core.Domain.Entities;
 
 namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetGoalById
 {
     /// <summary>
-    /// Tek bir hedefin detayını getiren handler
+    /// Tek bir hedefin detayını getiren handler.
+    /// PeriodInUser üzerinden sahiplik doğrulaması yapılır.
     /// </summary>
     public class GetGoalByIdHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
         IUserContextService userContextService,
+        UserManager<AppUser> userManager,
         IMapper mapper,
         ILogger<GetGoalByIdHandler> logger
     ) : BaseHandler<IAppDbContext, GetGoalByIdHandler>(unitOfWork, mapper, logger),
@@ -25,14 +29,20 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetGoalById
     {
         public async Task<EmployeeGoalDto?> Handle(GetGoalByIdRequest request, CancellationToken cancellationToken)
         {
-            var employeeId = userContextService.UserId;
+            // Giriş yapan kullanıcının SAP PerNr bilgisini al
+            var appUser = await userManager.FindByIdAsync(userContextService.UserId.ToString());
+            if (appUser == null) return null;
+
+            var userEmail = appUser.Email!.ToUpperInvariant();
 
             var goal = await unitOfWork.GetAppReadRepository<EmployeeGoal>()
-                .GetAsync(g => g.Id == request.Id && g.EmployeeId == employeeId && g.IsActive,
-                    include: x => x.Include(g => g.Period).Include(g => g.Indicator!));
+                .GetAsync(g => g.Id == request.Id && g.IsActive,
+                    include: x => x.Include(g => g.Period).Include(g => g.Indicator!).Include(g => g.PeriodInUser));
 
-            if (goal == null)
-                return null;
+            if (goal == null) return null;
+
+            // Sahiplik kontrolü - PeriodInUser.Mail eşleşmeli
+            if (!string.Equals(goal.PeriodInUser.Mail, appUser.Email, StringComparison.OrdinalIgnoreCase)) return null;
 
             return new EmployeeGoalDto
             {
@@ -41,7 +51,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetGoalById
                 PeriodName = goal.Period != null ? $"{goal.Period.Year} - {goal.Period.Term}" : "",
                 IndicatorId = goal.IndicatorId,
                 IndicatorName = goal.Indicator?.IndicatorName,
-                EmployeeId = goal.EmployeeId,
+                PeriodInUserId = goal.PeriodInUserId,
                 GoalTitle = goal.GoalTitle,
                 GoalDescription = goal.GoalDescription,
                 TargetValue = goal.TargetValue,

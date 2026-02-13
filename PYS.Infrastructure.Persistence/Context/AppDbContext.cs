@@ -86,6 +86,19 @@ namespace PYS.Infrastructure.Persistence.Context
             }
 
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            // EmployeeGoals: AppUser FK'larını Restrict yap (SQL Server cascade cycle önlemi)
+            var employeeGoalEntity = builder.Model.FindEntityType(typeof(EmployeeGoal));
+            if (employeeGoalEntity != null)
+            {
+                foreach (var fk in employeeGoalEntity.GetForeignKeys())
+                {
+                    if (fk.PrincipalEntityType.ClrType == typeof(AppUser))
+                    {
+                        fk.DeleteBehavior = DeleteBehavior.Restrict;
+                    }
+                }
+            }
         }
     }
 }
