@@ -27,7 +27,11 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Dtos
         public GoalStatus Status { get; set; }
         public string StatusText { get; set; } = string.Empty;
         public DateTime? ApprovalDate { get; set; }
+        public DateTime? FirstApprovalDate { get; set; }
+        public DateTime? SecondApprovalDate { get; set; }
+        public Guid? ApprovedBySecondManagerId { get; set; }
         public string? ManagerNote { get; set; }
+        public string? SecondManagerNote { get; set; }
         public string? EmployeeNote { get; set; }
         public int RejectionCount { get; set; }
         public bool IsActive { get; set; }
@@ -97,5 +101,22 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Dtos
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string DisplayName => $"{Year} - {Term}";
+    }
+
+    /// <summary>
+    /// Ast çalışanın hedefleri için DTO (yönetici görünümü)
+    /// </summary>
+    public class SubordinateGoalDto
+    {
+        public Guid PeriodInUserId { get; set; }
+        public Guid PeriodId { get; set; }
+        public string PeriodName { get; set; } = string.Empty;
+        public string EmployeeName { get; set; } = string.Empty;
+        public string EmployeeTitle { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
+        public int PerNr { get; set; }
+        public List<EmployeeGoalDto> Goals { get; set; } = new();
+        public decimal TotalWeight { get; set; }
+        public bool CanApprove { get; set; }
     }
 }

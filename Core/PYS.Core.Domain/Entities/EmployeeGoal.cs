@@ -87,19 +87,39 @@ namespace PYS.Core.Domain.Entities
         public decimal? WeightedScore { get; set; }
 
         /// <summary>
-        /// Hedef durumu (Draft, PendingApproval, Approved, Rejected)
+        /// Hedef durumu (Draft, PendingFirstApproval, PendingSecondApproval, Approved, Rejected)
         /// </summary>
         public GoalStatus Status { get; set; } = GoalStatus.Draft;
 
         /// <summary>
-        /// Onay tarihi
+        /// Onay tarihi (geriye dönük uyumluluk - 1. yönetici onay tarihi olarak da kullanılır)
         /// </summary>
         public DateTime? ApprovalDate { get; set; }
+
+        /// <summary>
+        /// 1. Yönetici onay tarihi
+        /// </summary>
+        public DateTime? FirstApprovalDate { get; set; }
+
+        /// <summary>
+        /// 2. Üst yönetici onay tarihi
+        /// </summary>
+        public DateTime? SecondApprovalDate { get; set; }
+
+        /// <summary>
+        /// 2. üst yöneticiyi onaylayan kişinin ID'si (AppUser)
+        /// </summary>
+        public Guid? ApprovedBySecondManagerId { get; set; }
 
         /// <summary>
         /// Yönetici notu (max 2000 karakter)
         /// </summary>
         public string? ManagerNote { get; set; }
+
+        /// <summary>
+        /// 2. Üst yönetici notu (max 2000 karakter)
+        /// </summary>
+        public string? SecondManagerNote { get; set; }
 
         /// <summary>
         /// Çalışan notu (max 2000 karakter)

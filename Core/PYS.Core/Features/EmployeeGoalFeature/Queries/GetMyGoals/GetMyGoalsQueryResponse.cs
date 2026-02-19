@@ -10,7 +10,8 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
         public List<EmployeeGoalDto> Goals { get; set; } = new();
         public int TotalCount { get; set; }
         public int DraftCount { get; set; }
-        public int PendingApprovalCount { get; set; }
+        public int PendingFirstApprovalCount { get; set; }
+        public int PendingSecondApprovalCount { get; set; }
         public int ApprovedCount { get; set; }
         public int RejectedCount { get; set; }
         public decimal TotalWeight { get; set; }

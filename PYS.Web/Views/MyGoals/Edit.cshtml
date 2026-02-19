@@ -2,11 +2,11 @@
 @using PYS.Core.Domain.Enums
 @model PYS.Web.ViewModels.MyGoals.EditGoalViewModel
 @{
-    ViewData["Title"] = "Hedef Duzenle";
+    ViewData["Title"] = "Hedef Düzenle";
 }
 
 <h4 class="fw-bold py-3 mb-4">
-    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Hedef Duzenle
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Hedef Düzenle
 </h4>
 
 <div class="row">
@@ -17,7 +17,7 @@
                     <i class="bx bx-edit me-2"></i>Hedef Bilgileri
                     @if (Model.Status == GoalStatus.Rejected)
                     {
-                        <span class="badge bg-label-danger ms-2">Reddedildi - Yeniden Duzenleniyor</span>
+                        <span class="badge bg-label-danger ms-2">Reddedildi - Yeniden Düzenleniyor</span>
                     }
                 </h5>
             </div>
@@ -26,31 +26,31 @@
                     @Html.AntiForgeryToken()
 
                     <div class="mb-3">
-                        <label class="form-label text-muted">Donem</label>
+                        <label class="form-label text-muted">Dönem</label>
                         <p class="form-control-plaintext fw-medium">@Model.PeriodName</p>
                     </div>
 
                     @if (!string.IsNullOrEmpty(Model.IndicatorName))
                     {
                         <div class="mb-3">
-                            <label class="form-label text-muted">Gosterge</label>
+                            <label class="form-label text-muted">Gösterge</label>
                             <p class="form-control-plaintext fw-medium">@Model.IndicatorName</p>
                         </div>
                     }
 
                     <div class="mb-3">
-                        <label class="form-label">Hedef Basligi *</label>
+                        <label class="form-label">Hedef Başlığı *</label>
                         <input type="text" name="GoalTitle" class="form-control" value="@Model.GoalTitle" required maxlength="500">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Aciklama</label>
+                        <label class="form-label">Açıklama</label>
                         <textarea name="GoalDescription" class="form-control" rows="3" maxlength="4000">@Model.GoalDescription</textarea>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Hedef Deger *</label>
+                            <label class="form-label">Hedef Değer *</label>
                             <input type="number" step="0.01" name="TargetValue" class="form-control" value="@Model.TargetValue" required min="0.01">
                         </div>
                         <div class="col-md-4 mb-3">
@@ -58,30 +58,30 @@
                             <input type="text" name="TargetUnit" class="form-control" value="@Model.TargetUnit" placeholder="%, adet, TL..." maxlength="50">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Agirlik (%) *</label>
+                            <label class="form-label">Ağırlık (%) *</label>
                             <input type="number" step="0.01" name="Weight" class="form-control" id="weightInput" value="@Model.Weight" required min="1" max="100">
-                            <small class="text-muted">Diger hedeflerin toplami: %@Model.CurrentTotalWeight</small>
+                            <small class="text-muted">Diğer hedeflerin toplamı: %@Model.CurrentTotalWeight</small>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Baslangic Tarihi</label>
+                            <label class="form-label">Başlangıç Tarihi</label>
                             <input type="date" name="StartDate" class="form-control" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Bitis Tarihi</label>
+                            <label class="form-label">Bitiş Tarihi</label>
                             <input type="date" name="EndDate" class="form-control" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Calisan Notu</label>
+                        <label class="form-label">Çalışan Notu</label>
                         <textarea name="EmployeeNote" class="form-control" rows="2" maxlength="2000">@Model.EmployeeNote</textarea>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a class="btn btn-outline-secondary" asp-action="Index">Iptal</a>
+                        <a class="btn btn-outline-secondary" asp-action="Index">İptal</a>
                         <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i>Kaydet</button>
                     </div>
                 </form>
@@ -89,13 +89,12 @@
         </div>
     </div>
 
-    <!-- Sağ Panel: Ağırlık Bilgisi -->
     <div class="col-lg-4">
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="text-primary"><i class="bx bx-bar-chart-alt-2 me-1"></i>Agirlik Durumu</h6>
+                <h6 class="text-primary"><i class="bx bx-bar-chart-alt-2 me-1"></i>Ağırlık Durumu</h6>
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-muted">Diger Hedefler</span>
+                    <span class="text-muted">Diğer Hedefler</span>
                     <span>%@Model.CurrentTotalWeight</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -118,11 +117,11 @@
 
         <div class="card">
             <div class="card-body">
-                <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>Ipuclari</h6>
+                <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>İpuçları</h6>
                 <ul class="mb-0 small text-muted">
-                    <li>Sadece Taslak veya Reddedildi durumundaki hedefler duzenlenebilir</li>
-                    <li>Toplam agirlik %100'u gecemez</li>
-                    <li>Bitis tarihi baslangic tarihinden once olamaz</li>
+                    <li>Sadece Taslak veya Reddedildi durumundaki hedefler düzenlenebilir</li>
+                    <li>Toplam ağırlık %100'ü geçemez</li>
+                    <li>Bitiş tarihi başlangıç tarihinden önce olamaz</li>
                 </ul>
             </div>
         </div>
@@ -131,7 +130,7 @@
 
 @section Scripts {
     <script>
-        var otherWeight = @Model.CurrentTotalWeight;
+        var otherWeight = @Model.CurrentTotalWeight.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
         $('#weightInput').on('change keyup', function () {
             var currentWeight = parseFloat($(this).val()) || 0;
@@ -147,6 +146,7 @@
             } else if (total > 100) {
                 $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
             } else {
+                // API tarafında kontrol edildiği için buradaki uyarılar kullanıcıya rehberlik eder
                 $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
             }
         }).trigger('change');

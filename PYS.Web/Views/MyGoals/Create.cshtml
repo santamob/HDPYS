@@ -24,10 +24,11 @@
                             <option value="@period.Id" selected="@(Model.PeriodId == period.Id)">@period.DisplayName</option>
                         }
                     </select>
+                    <small class="text-muted mt-1 d-block">Dönem değiştirildiğinde sayfa yenilenir.</small>
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card mb-4" id="indicatorPoolCard">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0"><i class="bx bx-bar-chart me-2"></i>Gösterge Havuzu</h5>
                     <input type="text" id="indicatorSearch" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Gösterge ara...">
@@ -68,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
+            <div class="card mb-4" id="manualGoalCard">
                 <div class="card-header">
                     <h5 class="card-title mb-0"><i class="bx bx-plus-circle me-2"></i>Manuel Hedef Ekle</h5>
                 </div>
@@ -85,12 +86,13 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="mb-0">Toplam Ağırlık</h6>
+                        <h6 class="mb-0">Dönem Kota Doluluk Oranı</h6>
                         <span id="totalWeightDisplay" class="badge bg-label-info">%0</span>
                     </div>
                     <div class="progress" style="height: 8px;">
                         <div id="weightProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
+                    <small class="mt-1 d-block" id="existingWeightInfo"></small>
                     <small class="text-muted mt-1 d-block" id="weightHint">Toplam ağırlık %100 olmalıdır.</small>
                 </div>
             </div>
@@ -123,6 +125,15 @@
 @section Scripts {
     <script>
         var goalIndex = 0;
+        var existingWeight = @Model.CurrentTotalWeight.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        // Dönem değişince sayfayı yenile (sunucudan güncel existingWeight alınır)
+        $('#periodSelect').on('change', function () {
+            var selectedPeriodId = $(this).val();
+            if (selectedPeriodId) {
+                window.location.href = '@Url.Action("Create", "MyGoals")?periodId=' + selectedPeriodId;
+            }
+        });
 
         // Gösterge arama
         $('#indicatorSearch').on('keyup', function () {
@@ -155,6 +166,9 @@
             var index = goalIndex++;
             var idVal = indicatorId || '';
             var titleVal = indicatorName || '';
+            var indicatorIdHtml = idVal
+                ? '<input type="hidden" name="Goals[' + index + '].IndicatorId" value="' + idVal + '" />'
+                : '';
 
             var card = `
                 <div class="card mb-3 goal-card" data-indicator-id="${idVal}" data-index="${index}">
@@ -165,7 +179,7 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <input type="hidden" name="Goals[${index}].IndicatorId" value="${idVal}" />
+                        ${indicatorIdHtml}
                         <div class="row g-2">
                             <div class="col-12">
                                 <label class="form-label">Hedef Başlığı *</label>
@@ -232,26 +246,71 @@
         });
 
         function updateTotalWeight() {
-            var total = 0;
+            var newWeight = 0;
             $('.goal-weight').each(function () {
                 var val = parseFloat($(this).val()) || 0;
-                total += val;
+                newWeight += val;
             });
-            total = Math.round(total * 100) / 100;
+            newWeight = Math.round(newWeight * 100) / 100;
 
+            // Dönem kotasındaki toplam doluluk = önceki kayıtlı + bu formdaki
+            var total = Math.round((existingWeight + newWeight) * 100) / 100;
+            var remaining = Math.round((100 - total) * 100) / 100;
+
+            // Badge ve progress bar: dönemin toplam doluluk oranını gösterir
             $('#totalWeightDisplay').text('%' + total);
             $('#weightProgressBar').css('width', Math.min(total, 100) + '%');
 
-            if (total === 100) {
-                $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
-                $('#weightHint').text('Ağırlık %100 - Tamamlandı!').removeClass('text-danger text-warning').addClass('text-success');
-            } else if (total > 100) {
+            // Bilgilendirme satırı: kayıtlı ve yeni hedeflerin ayrımını göster
+            if (existingWeight > 0) {
+                $('#existingWeightInfo')
+                    .text('Kayıtlı hedefler: %' + existingWeight + ' | Bu forma eklenenler: %' + newWeight)
+                    .removeClass('text-muted').addClass('text-info fw-semibold');
+            } else {
+                $('#existingWeightInfo').text('').removeClass('text-info fw-semibold').addClass('text-muted');
+            }
+
+            // Renk ve ipucu mesajı
+            if (total > 100) {
                 $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
-                $('#weightHint').text('Ağırlık %100\'ü aşmasın!').removeClass('text-success text-warning').addClass('text-danger');
+                var excess = Math.round((total - 100) * 100) / 100;
+                $('#weightHint')
+                    .text('Ağırlık %100\'ü aşıyor! Fazlalık: %' + excess)
+                    .removeClass('text-success text-warning').addClass('text-danger');
+            } else if (total === 100) {
+                $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
+                if (newWeight === 0) {
+                    // Kota zaten kayıtlı hedeflerle dolmuş, bu forma hiçbir şey eklenmemiş
+                    $('#weightHint')
+                        .text('Bu dönemin kayıtlı hedefleri ağırlık kotasını (%100) doldurmaktadır.')
+                        .removeClass('text-success text-danger').addClass('text-warning');
+                } else {
+                    $('#weightHint')
+                        .text('Ağırlık %100 - Tamamlandı!')
+                        .removeClass('text-danger text-warning').addClass('text-success');
+                }
             } else {
                 $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
-                $('#weightHint').text('Toplam ağırlık %100 olmalıdır. Kalan: %' + (100 - total)).removeClass('text-success text-danger').addClass('text-warning');
+                $('#weightHint')
+                    .text('Toplam ağırlık %100 olmalıdır. Kalan: %' + remaining)
+                    .removeClass('text-success text-danger').addClass('text-warning');
             }
+        }
+
+        // Form gönderilmeden önce index'leri yeniden sırala (model binding için zorunlu)
+        function reindexGoalCards() {
+            var newIndex = 0;
+            $('.goal-card').each(function () {
+                var card = $(this);
+                card.find('input, textarea, select').each(function () {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/Goals\[\d+\]/, 'Goals[' + newIndex + ']'));
+                    }
+                });
+                card.attr('data-index', newIndex);
+                newIndex++;
+            });
         }
 
         // Form gönderilmeden kontrol
@@ -262,6 +321,12 @@
                 toastr.warning('Lütfen en az bir hedef ekleyin.', 'Uyarı');
                 return false;
             }
+
+            // Index'leri sıralı yap (0, 1, 2, ...) - ASP.NET model binding için gerekli
+            reindexGoalCards();
         });
+
+        // Sayfa yüklendiğinde ağırlık durumunu göster
+        updateTotalWeight();
     </script>
 }

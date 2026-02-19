@@ -4,6 +4,7 @@ namespace PYS.Core.Domain.Enums
 {
     /// <summary>
     /// Çalışan hedeflerinin durum bilgisini temsil eder.
+    /// İki kademeli onay akışı: Draft -> PendingFirstApproval -> PendingSecondApproval -> Approved
     /// </summary>
     public enum GoalStatus
     {
@@ -14,13 +15,13 @@ namespace PYS.Core.Domain.Enums
         Draft = 0,
 
         /// <summary>
-        /// Onay Bekliyor - Yönetici onayına gönderilmiş
+        /// 1. Yönetici Onayında - Doğrudan yönetici onayına gönderilmiş
         /// </summary>
-        [Display(Name = "Onay Bekliyor")]
-        PendingApproval = 1,
+        [Display(Name = "1. Yönetici Onayında")]
+        PendingFirstApproval = 1,
 
         /// <summary>
-        /// Onaylandı - Yönetici tarafından onaylanmış
+        /// Onaylandı - Tüm onay süreçleri tamamlanmış
         /// </summary>
         [Display(Name = "Onaylandı")]
         Approved = 2,
@@ -29,6 +30,12 @@ namespace PYS.Core.Domain.Enums
         /// Reddedildi - Yönetici tarafından reddedilmiş
         /// </summary>
         [Display(Name = "Reddedildi")]
-        Rejected = 3
+        Rejected = 3,
+
+        /// <summary>
+        /// 2. Üst Yönetici Onayında - 1. yönetici onayladı, üst yönetici onayı bekleniyor
+        /// </summary>
+        [Display(Name = "2. Üst Yönetici Onayında")]
+        PendingSecondApproval = 4
     }
 }

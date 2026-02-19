@@ -17,7 +17,13 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Rules
         public Task<RuleResult> TotalWeightShouldNotExceed100(decimal currentTotalWeight, decimal newWeight)
         {
             if (currentTotalWeight + newWeight > 100)
-                return Task.FromResult(Failure("Toplam ağırlık 100'ü geçemez. Mevcut toplam: " + currentTotalWeight + ", eklenmek istenen: " + newWeight));
+            {
+                var remaining = 100 - currentTotalWeight;
+                return Task.FromResult(Failure(
+                    $"Toplam ağırlık %100'ü geçemez. " +
+                    $"Mevcut hedeflerinizin toplam ağırlığı: %{currentTotalWeight:0.##}. " +
+                    $"Ekleyebileceğiniz maksimum ağırlık: %{remaining:0.##}."));
+            }
             return Task.FromResult(Success());
         }
 
@@ -78,6 +84,36 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Rules
         {
             if (goal is null)
                 return Task.FromResult(Failure("Hedef bulunamadı."));
+            return Task.FromResult(Success());
+        }
+
+        /// <summary>
+        /// Hedefler 1. yönetici onayı için PendingFirstApproval durumunda olmalı
+        /// </summary>
+        public Task<RuleResult> GoalsShouldBePendingFirstApproval(IEnumerable<GoalStatus> statuses)
+        {
+            if (statuses.Any(s => s != GoalStatus.PendingFirstApproval))
+                return Task.FromResult(Failure("Bu hedefler 1. Yönetici Onayında durumunda değil."));
+            return Task.FromResult(Success());
+        }
+
+        /// <summary>
+        /// Hedefler 2. üst yönetici onayı için PendingSecondApproval durumunda olmalı
+        /// </summary>
+        public Task<RuleResult> GoalsShouldBePendingSecondApproval(IEnumerable<GoalStatus> statuses)
+        {
+            if (statuses.Any(s => s != GoalStatus.PendingSecondApproval))
+                return Task.FromResult(Failure("Bu hedefler 2. Üst Yönetici Onayında durumunda değil."));
+            return Task.FromResult(Success());
+        }
+
+        /// <summary>
+        /// Yönetici yetki kontrolü - Ast ilişkisi doğrulaması
+        /// </summary>
+        public Task<RuleResult> ManagerShouldBeAuthorized(bool isAuthorized)
+        {
+            if (!isAuthorized)
+                return Task.FromResult(Failure("Bu işlem için yetkiniz bulunmamaktadır."));
             return Task.FromResult(Success());
         }
     }

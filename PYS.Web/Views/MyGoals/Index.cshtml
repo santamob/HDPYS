@@ -38,7 +38,7 @@
                 <div class="avatar avatar-md mx-auto mb-2">
                     <span class="avatar-initial rounded-circle bg-label-warning"><i class="bx bx-time"></i></span>
                 </div>
-                <h5 class="mb-0">@Model.PendingApprovalCount</h5>
+                <h5 class="mb-0">@(Model.PendingFirstApprovalCount + Model.PendingSecondApprovalCount)</h5>
                 <small class="text-muted">Onay Bekleyen</small>
             </div>
         </div>
@@ -106,10 +106,11 @@
             </div>
             <div class="col-md-3 text-end">
                 <a class="btn btn-primary" asp-action="Create"><i class="bx bx-plus me-1"></i>Yeni Hedef</a>
-                @if (Model.TotalWeight == 100 && Model.DraftCount > 0)
+                @if (Model.SelectedPeriodId.HasValue && Model.TotalWeight == 100 && (Model.DraftCount > 0 || Model.RejectedCount > 0))
                 {
+                    var btnLabel = (Model.DraftCount == 0 && Model.RejectedCount > 0) ? "Tekrar Onaya Gönder" : "Tümünü Onaya Gönder";
                     <button type="button" class="btn btn-success ms-2" id="btnSubmitAll" data-period-id="@Model.SelectedPeriodId">
-                        <i class="bx bx-send me-1"></i>Tümünü Onaya Gönder
+                        <i class="bx bx-send me-1"></i>@btnLabel
                     </button>
                 }
             </div>
@@ -125,7 +126,8 @@
             var statusClass = goal.Status switch
             {
                 GoalStatus.Draft => "secondary",
-                GoalStatus.PendingApproval => "warning",
+                GoalStatus.PendingFirstApproval => "warning",
+                GoalStatus.PendingSecondApproval => "info",
                 GoalStatus.Approved => "success",
                 GoalStatus.Rejected => "danger",
                 _ => "secondary"
@@ -133,7 +135,8 @@
             var statusIcon = goal.Status switch
             {
                 GoalStatus.Draft => "bx-edit",
-                GoalStatus.PendingApproval => "bx-time",
+                GoalStatus.PendingFirstApproval => "bx-time",
+                GoalStatus.PendingSecondApproval => "bx-time-five",
                 GoalStatus.Approved => "bx-check-circle",
                 GoalStatus.Rejected => "bx-x-circle",
                 _ => "bx-question-mark"

@@ -2,27 +2,27 @@
 @using PYS.Core.Domain.Enums
 @model PYS.Web.ViewModels.MyGoals.PreviewGoalsViewModel
 @{
-    ViewData["Title"] = "Hedef Onizleme";
+    ViewData["Title"] = "Hedef Önizleme";
 }
 
 <h4 class="fw-bold py-3 mb-4">
-    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Onizleme
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Önizleme
 </h4>
 
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <div>
-            <h5 class="card-title mb-0"><i class="bx bx-show me-2"></i>Hedef Ozeti</h5>
+            <h5 class="card-title mb-0"><i class="bx bx-show me-2"></i>Hedef Özeti</h5>
             <small class="text-muted">@Model.PeriodName</small>
         </div>
         <div>
             @if (Model.CanSubmit)
             {
-                <span class="badge bg-success"><i class="bx bx-check me-1"></i>Agirlik Tamam (%100)</span>
+                <span class="badge bg-success"><i class="bx bx-check me-1"></i>Ağırlık Tamam (%100)</span>
             }
             else
             {
-                <span class="badge bg-warning"><i class="bx bx-error me-1"></i>Agirlik: %@Model.TotalWeight (Hedef: %100)</span>
+                <span class="badge bg-warning"><i class="bx bx-error me-1"></i>Ağırlık: %@Model.TotalWeight (Hedef: %100)</span>
             }
         </div>
     </div>
@@ -34,23 +34,26 @@
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
-                            <th>Hedef Basligi</th>
-                            <th>Gosterge</th>
-                            <th class="text-center">Hedef Deger</th>
+                            <th>Hedef Başlığı</th>
+                            <th>Gösterge</th>
+                            <th class="text-center">Hedef Değer</th>
                             <th class="text-center">Birim</th>
-                            <th class="text-center">Agirlik</th>
-                            <th class="text-center">Tarih Araligi</th>
+                            <th class="text-center">Ağırlık</th>
+                            <th class="text-center">Tarih Aralığı</th>
                             <th class="text-center">Durum</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @{ var index = 1; }
+                        @{
+                            var index = 1;
+                        }
                         @foreach (var goal in Model.Goals)
                         {
                             var statusClass = goal.Status switch
                             {
                                 GoalStatus.Draft => "secondary",
-                                GoalStatus.PendingApproval => "warning",
+                                GoalStatus.PendingFirstApproval => "warning",
+                                GoalStatus.PendingSecondApproval => "info",
                                 GoalStatus.Approved => "success",
                                 GoalStatus.Rejected => "danger",
                                 _ => "secondary"
@@ -61,7 +64,9 @@
                                     <strong>@goal.GoalTitle</strong>
                                     @if (!string.IsNullOrEmpty(goal.GoalDescription))
                                     {
-                                        <br /><small class="text-muted">@(goal.GoalDescription.Length > 100 ? goal.GoalDescription.Substring(0, 100) + "..." : goal.GoalDescription)</small>
+                                        <br />
+
+                                        <small class="text-muted">@(goal.GoalDescription.Length > 100 ? goal.GoalDescription.Substring(0, 100) + "..." : goal.GoalDescription)</small>
                                     }
                                 </td>
                                 <td>
@@ -89,7 +94,7 @@
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="5" class="text-end"><strong>Toplam Agirlik:</strong></td>
+                            <td colspan="5" class="text-end"><strong>Toplam Ağırlık:</strong></td>
                             <td class="text-center">
                                 <strong class="@(Model.CanSubmit ? "text-success" : "text-danger")">%@Model.TotalWeight</strong>
                             </td>
@@ -102,18 +107,17 @@
         else
         {
             <div class="text-center py-4">
-                <p class="text-muted">Bu donem icin hedef bulunamadi.</p>
+                <p class="text-muted">Bu dönem için hedef bulunamadı.</p>
             </div>
         }
     </div>
 </div>
 
-<!-- Aksiyonlar -->
 <div class="d-flex justify-content-between">
-    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bx bx-arrow-back me-1"></i>Geri Don</a>
+    <a class="btn btn-outline-secondary" asp-action="Index"><i class="bx bx-arrow-back me-1"></i>Geri Dön</a>
     <div class="d-flex gap-2">
         <a class="btn btn-outline-primary" asp-action="Create" asp-route-periodId="@Model.PeriodId">
-            <i class="bx bx-edit me-1"></i>Duzenle
+            <i class="bx bx-edit me-1"></i>Düzenle
         </a>
         @if (Model.CanSubmit && Model.Goals.Any(g => g.Status == GoalStatus.Draft || g.Status == GoalStatus.Rejected))
         {
@@ -121,14 +125,14 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="periodId" value="@Model.PeriodId" />
                 <button type="submit" class="btn btn-success" id="btnSubmit">
-                    <i class="bx bx-send me-1"></i>Yonetici Onayina Gonder
+                    <i class="bx bx-send me-1"></i>Yönetici Onayına Gönder
                 </button>
             </form>
         }
         else if (!Model.CanSubmit)
         {
-            <button class="btn btn-success" disabled title="Toplam agirlik %100 olmalidir">
-                <i class="bx bx-send me-1"></i>Yonetici Onayina Gonder
+            <button class="btn btn-success" disabled title="Toplam ağırlık %100 olmalıdır">
+                <i class="bx bx-send me-1"></i>Yönetici Onayına Gönder
             </button>
         }
     </div>
@@ -141,14 +145,14 @@
             var form = $(this).closest('form');
 
             Swal.fire({
-                title: 'Onaya Gonder',
-                text: "Hedefleriniz yonetici onayina gonderilecek. Bu islem sonrasi hedefler uzerinde degisiklik yapamazsiniz. Devam etmek istiyor musunuz?",
+                title: 'Onaya Gönder',
+                text: "Hedefleriniz yönetici onayına gönderilecek. Bu işlem sonrası hedefler üzerinde değişiklik yapamazsınız. Devam etmek istiyor musunuz?",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#28a745',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Evet, Gonder',
-                cancelButtonText: 'Iptal'
+                confirmButtonText: 'Evet, Gönder',
+                cancelButtonText: 'İptal'
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();

@@ -50,7 +50,8 @@ namespace PYS.Web.Controllers
                 SelectedStatus = status,
                 TotalCount = goalsResponse.TotalCount,
                 DraftCount = goalsResponse.DraftCount,
-                PendingApprovalCount = goalsResponse.PendingApprovalCount,
+                PendingFirstApprovalCount = goalsResponse.PendingFirstApprovalCount,
+                PendingSecondApprovalCount = goalsResponse.PendingSecondApprovalCount,
                 ApprovedCount = goalsResponse.ApprovedCount,
                 RejectedCount = goalsResponse.RejectedCount,
                 TotalWeight = goalsResponse.TotalWeight
@@ -68,11 +69,22 @@ namespace PYS.Web.Controllers
             var periods = await mediator.Send(new GetActivePeriodsRequest());
             var indicators = await mediator.Send(new GetAvailableIndicatorsRequest());
 
+            var selectedPeriodId = periodId ?? (periods.Any() ? periods.First().Id : Guid.Empty);
+
+            // Mevcut dönemdeki hedeflerin toplam ağırlığını hesapla
+            decimal currentTotalWeight = 0;
+            if (selectedPeriodId != Guid.Empty)
+            {
+                var goalsResponse = await mediator.Send(new GetMyGoalsQueryRequest { PeriodId = selectedPeriodId });
+                currentTotalWeight = goalsResponse.TotalWeight;
+            }
+
             var viewModel = new CreateGoalViewModel
             {
-                PeriodId = periodId ?? (periods.Any() ? periods.First().Id : Guid.Empty),
+                PeriodId = selectedPeriodId,
                 Periods = periods,
-                Indicators = indicators
+                Indicators = indicators,
+                CurrentTotalWeight = currentTotalWeight
             };
 
             return View(viewModel);

@@ -110,14 +110,19 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForAp
                     managerId = managerUser?.Id;
                 }
 
-                // Hedefleri PendingApproval durumuna al ve yöneticiyi ata
+                // Hedefleri PendingFirstApproval durumuna al ve yöneticiyi ata
                 foreach (var goal in goals)
                 {
-                    goal.Status = GoalStatus.PendingApproval;
+                    goal.Status = GoalStatus.PendingFirstApproval;
                     if (managerId.HasValue)
                     {
                         goal.ApprovedByManagerId = managerId.Value;
                     }
+                    // Yeniden gönderimde 2. yönetici alanlarını temizle
+                    goal.ApprovedBySecondManagerId = null;
+                    goal.FirstApprovalDate = null;
+                    goal.SecondApprovalDate = null;
+                    goal.SecondManagerNote = null;
                     await unitOfWork.GetAppWriteRepository<EmployeeGoal>().UpdateAsync(goal);
                 }
 

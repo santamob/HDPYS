@@ -94,13 +94,18 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
                 StatusText = g.Status switch
                 {
                     GoalStatus.Draft => "Taslak",
-                    GoalStatus.PendingApproval => "Onay Bekliyor",
+                    GoalStatus.PendingFirstApproval => "1. Yönetici Onayında",
+                    GoalStatus.PendingSecondApproval => "2. Üst Yönetici Onayında",
                     GoalStatus.Approved => "Onaylandı",
                     GoalStatus.Rejected => "Reddedildi",
                     _ => "Bilinmiyor"
                 },
                 ApprovalDate = g.ApprovalDate,
+                FirstApprovalDate = g.FirstApprovalDate,
+                SecondApprovalDate = g.SecondApprovalDate,
+                ApprovedBySecondManagerId = g.ApprovedBySecondManagerId,
                 ManagerNote = g.ManagerNote,
+                SecondManagerNote = g.SecondManagerNote,
                 EmployeeNote = g.EmployeeNote,
                 RejectionCount = g.RejectionCount,
                 IsActive = g.IsActive
@@ -114,7 +119,8 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetMyGoals
                 Goals = goalDtos,
                 TotalCount = goalsForStats.Count,
                 DraftCount = goalsForStats.Count(g => g.Status == GoalStatus.Draft),
-                PendingApprovalCount = goalsForStats.Count(g => g.Status == GoalStatus.PendingApproval),
+                PendingFirstApprovalCount = goalsForStats.Count(g => g.Status == GoalStatus.PendingFirstApproval),
+                PendingSecondApprovalCount = goalsForStats.Count(g => g.Status == GoalStatus.PendingSecondApproval),
                 ApprovedCount = goalsForStats.Count(g => g.Status == GoalStatus.Approved),
                 RejectedCount = goalsForStats.Count(g => g.Status == GoalStatus.Rejected),
                 TotalWeight = goalsForStats.Sum(g => g.Weight)

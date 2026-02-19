@@ -56,6 +56,10 @@ namespace PYS.Infrastructure.Persistence.Configurations
             builder.Property(x => x.ManagerNote)
                 .HasMaxLength(2000);
 
+            // SecondManagerNote - Opsiyonel, max 2000 karakter
+            builder.Property(x => x.SecondManagerNote)
+                .HasMaxLength(2000);
+
             // EmployeeNote - Opsiyonel, max 2000 karakter
             builder.Property(x => x.EmployeeNote)
                 .HasMaxLength(2000);

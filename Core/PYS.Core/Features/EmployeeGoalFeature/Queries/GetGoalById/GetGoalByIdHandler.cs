@@ -67,13 +67,18 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetGoalById
                 StatusText = goal.Status switch
                 {
                     GoalStatus.Draft => "Taslak",
-                    GoalStatus.PendingApproval => "Onay Bekliyor",
+                    GoalStatus.PendingFirstApproval => "1. Yönetici Onayında",
+                    GoalStatus.PendingSecondApproval => "2. Üst Yönetici Onayında",
                     GoalStatus.Approved => "Onaylandı",
                     GoalStatus.Rejected => "Reddedildi",
                     _ => "Bilinmiyor"
                 },
                 ApprovalDate = goal.ApprovalDate,
+                FirstApprovalDate = goal.FirstApprovalDate,
+                SecondApprovalDate = goal.SecondApprovalDate,
+                ApprovedBySecondManagerId = goal.ApprovedBySecondManagerId,
                 ManagerNote = goal.ManagerNote,
+                SecondManagerNote = goal.SecondManagerNote,
                 EmployeeNote = goal.EmployeeNote,
                 RejectionCount = goal.RejectionCount,
                 IsActive = goal.IsActive
