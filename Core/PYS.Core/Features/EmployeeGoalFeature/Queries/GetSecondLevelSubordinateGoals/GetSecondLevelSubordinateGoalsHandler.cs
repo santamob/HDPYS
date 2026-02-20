@@ -86,6 +86,14 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSecondLev
             var subordinateGoals = secondLevelSubordinates.Select(piu =>
             {
                 var employeeGoals = goals.Where(g => g.PeriodInUserId == piu.Id).ToList();
+
+                var pendingSecondGoals = employeeGoals
+                    .Where(g => g.Status == GoalStatus.PendingSecondApproval).ToList();
+
+                // CanApprove: Tüm hedefler PendingSecondApproval durumunda olmalı
+                bool canApprove = pendingSecondGoals.Any()
+                    && employeeGoals.All(g => g.Status == GoalStatus.PendingSecondApproval);
+
                 return new SubordinateGoalDto
                 {
                     PeriodInUserId = piu.Id,
@@ -113,8 +121,8 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSecondLev
                         Status = g.Status,
                         StatusText = g.Status switch
                         {
-                            GoalStatus.PendingSecondApproval => "2. Ust Yonetici Onayinda",
-                            GoalStatus.Approved => "Onaylandi",
+                            GoalStatus.PendingSecondApproval => "2. Üst Yönetici Onayında",
+                            GoalStatus.Approved => "Onaylandı",
                             GoalStatus.Rejected => "Reddedildi",
                             _ => "Bilinmiyor"
                         },
@@ -128,7 +136,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSecondLev
                         IsActive = g.IsActive
                     }).OrderBy(g => g.GoalTitle).ToList(),
                     TotalWeight = employeeGoals.Sum(g => g.Weight),
-                    CanApprove = employeeGoals.Any() && employeeGoals.All(g => g.Status == GoalStatus.PendingSecondApproval)
+                    CanApprove = canApprove
                 };
             }).Where(s => s.Goals.Any()).ToList();
 

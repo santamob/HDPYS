@@ -120,10 +120,19 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.RejectGoals
                     if (request.ApprovalLevel == 1)
                     {
                         goal.ManagerNote = request.ManagerNote;
+                        // 1. yönetici reddinde onay tarihlerini temizle (çalışan yeniden düzenleyip gönderebilsin)
+                        goal.ApprovalDate = null;
+                        goal.FirstApprovalDate = null;
+                        goal.ApprovedByManagerId = null;
+                        goal.ApprovedBySecondManagerId = null;
+                        goal.SecondApprovalDate = null;
                     }
                     else
                     {
                         goal.SecondManagerNote = request.ManagerNote;
+                        // 2. yönetici reddinde yalnızca 2. onay alanlarını temizle
+                        goal.ApprovedBySecondManagerId = null;
+                        goal.SecondApprovalDate = null;
                     }
 
                     await unitOfWork.GetAppWriteRepository<EmployeeGoal>().UpdateAsync(goal);

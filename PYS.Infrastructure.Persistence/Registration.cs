@@ -11,6 +11,7 @@ using SantaFarma.Architecture.Core.Domain.Entities;
 using SantaFarma.Architecture.Infrastructure.Persistence.UnitOfWorks;
 using PYS.Core.Application.Interfaces.Authentication;
 using PYS.Core.Application.Interfaces.Context;
+using PYS.Core.Application.Features.EmployeeGoalFeature.Rules;
 
 public static class Registration
 {
@@ -61,5 +62,8 @@ public static class Registration
         services.AddScoped<IAuthenticationHelper, AuthenticationHelper>();
         services.AddScoped<ILDAPAuthService, LDAPAuthService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+        // Business Rules
+        services.AddScoped<EmployeeGoalRules>();
     }
 }

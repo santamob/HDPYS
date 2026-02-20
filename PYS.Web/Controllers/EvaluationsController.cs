@@ -73,11 +73,15 @@ namespace PYS.Web.Controllers
         }
 
         /// <summary>
-        /// 1. Yönetici onay (AJAX)
+        /// 1. Yönetici onay (AJAX) - Astın PendingFirstApproval hedeflerini onaylar
         /// </summary>
         [HttpPost("onayla")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Approve([FromBody] ApproveRejectViewModel model)
         {
+            if (model == null || model.PeriodInUserId == Guid.Empty || model.PeriodId == Guid.Empty)
+                return Json(new { success = false, message = "Geçersiz istek parametreleri." });
+
             var result = await mediator.Send(new ApproveGoalsCommandRequest
             {
                 PeriodInUserId = model.PeriodInUserId,
@@ -89,11 +93,15 @@ namespace PYS.Web.Controllers
         }
 
         /// <summary>
-        /// 2. Üst yönetici onay (AJAX)
+        /// 2. Üst yönetici onay (AJAX) - Astın astının PendingSecondApproval hedeflerini onaylar
         /// </summary>
         [HttpPost("ust-onayla")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> ApproveSecondLevel([FromBody] ApproveRejectViewModel model)
         {
+            if (model == null || model.PeriodInUserId == Guid.Empty || model.PeriodId == Guid.Empty)
+                return Json(new { success = false, message = "Geçersiz istek parametreleri." });
+
             var result = await mediator.Send(new ApproveGoalsSecondLevelCommandRequest
             {
                 PeriodInUserId = model.PeriodInUserId,
@@ -106,10 +114,18 @@ namespace PYS.Web.Controllers
 
         /// <summary>
         /// Red işlemi - Her iki yönetici için (AJAX)
+        /// ApprovalLevel: 1 = 1. yönetici reddi, 2 = 2. üst yönetici reddi
         /// </summary>
         [HttpPost("reddet")]
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> Reject([FromBody] ApproveRejectViewModel model)
         {
+            if (model == null || model.PeriodInUserId == Guid.Empty || model.PeriodId == Guid.Empty)
+                return Json(new { success = false, message = "Geçersiz istek parametreleri." });
+
+            if (model.ApprovalLevel != 1 && model.ApprovalLevel != 2)
+                return Json(new { success = false, message = "Geçersiz onay seviyesi." });
+
             var result = await mediator.Send(new RejectGoalsCommandRequest
             {
                 PeriodInUserId = model.PeriodInUserId,

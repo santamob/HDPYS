@@ -17,6 +17,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSubordina
     /// <summary>
     /// 1. derece astların hedeflerini getiren handler.
     /// PeriodInUser.MPernr == currentUser.RegistrationNumber olan kayıtlar doğrudan astlardır.
+    /// PendingFirstApproval durumundaki hedefler için onay butonu gösterilir.
     /// </summary>
     public class GetSubordinateGoalsHandler(
         IUnitOfWork<IAppDbContext> unitOfWork,
@@ -57,7 +58,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSubordina
 
             var subordinatePiuIds = subordinatePeriodInUsers.Select(p => p.Id).ToList();
 
-            // Astların hedeflerini çek
+            // Astların TÜM aktif hedeflerini çek (Draft dahil - yönetici tüm durumları görmeli)
             var goals = (await unitOfWork.GetAppReadRepository<EmployeeGoal>()
                 .GetAllAsync(
                     predicate: g => subordinatePiuIds.Contains(g.PeriodInUserId) && g.IsActive,
@@ -68,6 +69,21 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSubordina
             var subordinateGoals = subordinatePeriodInUsers.Select(piu =>
             {
                 var employeeGoals = goals.Where(g => g.PeriodInUserId == piu.Id).ToList();
+
+                var pendingFirstGoals = employeeGoals
+                    .Where(g => g.Status == GoalStatus.PendingFirstApproval).ToList();
+
+                // CanApprove: En az bir hedef PendingFirstApproval durumunda olmalı
+                // ve hedef listesinde Draft hedef bulunmamalı (hepsi onaya gönderilmiş olmalı)
+                bool hasOnlyPendingOrFinal = employeeGoals.All(g =>
+                    g.Status == GoalStatus.PendingFirstApproval ||
+                    g.Status == GoalStatus.Approved ||
+                    g.Status == GoalStatus.Rejected ||
+                    g.Status == GoalStatus.PendingSecondApproval);
+
+                bool canApprove = pendingFirstGoals.Any() && hasOnlyPendingOrFinal
+                    && employeeGoals.All(g => g.Status == GoalStatus.PendingFirstApproval);
+
                 return new SubordinateGoalDto
                 {
                     PeriodInUserId = piu.Id,
@@ -96,9 +112,9 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSubordina
                         StatusText = g.Status switch
                         {
                             GoalStatus.Draft => "Taslak",
-                            GoalStatus.PendingFirstApproval => "1. Yonetici Onayinda",
-                            GoalStatus.PendingSecondApproval => "2. Ust Yonetici Onayinda",
-                            GoalStatus.Approved => "Onaylandi",
+                            GoalStatus.PendingFirstApproval => "1. Yönetici Onayında",
+                            GoalStatus.PendingSecondApproval => "2. Üst Yönetici Onayında",
+                            GoalStatus.Approved => "Onaylandı",
                             GoalStatus.Rejected => "Reddedildi",
                             _ => "Bilinmiyor"
                         },
@@ -112,7 +128,7 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Queries.GetSubordina
                         IsActive = g.IsActive
                     }).OrderBy(g => g.GoalTitle).ToList(),
                     TotalWeight = employeeGoals.Sum(g => g.Weight),
-                    CanApprove = employeeGoals.Any() && employeeGoals.All(g => g.Status == GoalStatus.PendingFirstApproval)
+                    CanApprove = canApprove
                 };
             }).Where(s => s.Goals.Any()).ToList();
 

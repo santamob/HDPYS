@@ -115,6 +115,8 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.ApproveGoal
                     goal.Status = GoalStatus.Approved;
                     goal.SecondApprovalDate = DateTime.UtcNow;
                     goal.SecondManagerNote = request.ManagerNote;
+                    // Onaylayan 2. yöneticiyi kesinleştir
+                    goal.ApprovedBySecondManagerId = appUser.Id;
                     await unitOfWork.GetAppWriteRepository<EmployeeGoal>().UpdateAsync(goal);
                 }
 

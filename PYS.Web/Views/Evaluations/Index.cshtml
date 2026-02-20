@@ -1,21 +1,21 @@
 @using PYS.Core.Domain.Enums
 @model PYS.Web.ViewModels.Evaluations.EvaluationsIndexViewModel
 @{
-    ViewData["Title"] = "Degerlendirme Formlari";
+    ViewData["Title"] = "Değerlendirme Formları";
 }
 
 <h4 class="fw-bold py-3 mb-4">
-    <span class="text-muted fw-light">Performans /</span> Degerlendirme Formlari
+    <span class="text-muted fw-light">Performans /</span> Değerlendirme Formları
 </h4>
 
-<!-- Donem Filtresi -->
+<!-- Dönem Filtresi -->
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" asp-action="Index" class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label">Donem</label>
+                <label class="form-label">Dönem</label>
                 <select name="periodId" class="form-select" id="periodFilter">
-                    <option value="">Tum Donemler</option>
+                    <option value="">Tüm Dönemler</option>
                     @foreach (var period in Model.Periods)
                     {
                         <option value="@period.Id" selected="@(Model.SelectedPeriodId == period.Id)">@period.DisplayName</option>
@@ -32,7 +32,7 @@
 
 <div class="card">
     <div class="card-body">
-        <!-- Ust Sekmeler -->
+        <!-- Üst Sekmeler -->
         <div class="list-group list-group-horizontal-md text-md-center" id="form-tab" role="tablist">
             <a class="list-group-item list-group-item-action @(Model.ActiveTab == "own" ? "active" : "")"
                id="tab-own-forms"
@@ -48,7 +48,7 @@
                href="#content-sub-forms"
                role="tab"
                data-tab="sub">
-                Astlarima Ait Formlar
+                Astlarıma Ait Formlar
                 @if (Model.SubordinatePendingCount > 0)
                 {
                     <span class="badge bg-warning ms-1">@Model.SubordinatePendingCount</span>
@@ -60,7 +60,7 @@
                href="#content-sub-sub-forms"
                role="tab"
                data-tab="subsub">
-                Astimin Astlarina Ait Formlar
+                Astımın Astlarına Ait Formlar
                 @if (Model.SecondLevelPendingCount > 0)
                 {
                     <span class="badge bg-info ms-1">@Model.SecondLevelPendingCount</span>
@@ -68,27 +68,27 @@
             </a>
         </div>
 
-        <!-- Ust Sekme Icerikleri -->
+        <!-- Üst Sekme İçerikleri -->
         <div class="tab-content mt-3" id="form-tab-content">
 
-            <!-- =============== TAB 1: KENDiME AiT FORMLAR =============== -->
+            <!-- =============== TAB 1: KENDİME AİT FORMLAR =============== -->
             <div class="tab-pane fade @(Model.ActiveTab == "own" ? "show active" : "")" id="content-own-forms" role="tabpanel">
                 <!-- Alt Sekme -->
                 <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
                     <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-own-goal" role="tab">
-                        Hedef Formlari
+                        Hedef Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-own-competency" role="tab">
-                        Yetkinlik Formlari
+                        Yetkinlik Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-own-result" role="tab">
-                        Sonuc
+                        Sonuç
                     </a>
                 </div>
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-own-goal" role="tabpanel">
-                        <!-- Durum Ozet Kartlari -->
+                        <!-- Durum Özet Kartları -->
                         <div class="row mb-4">
                             <div class="col-lg-2 col-md-4 col-6 mb-2">
                                 <div class="card h-100 border-start border-secondary border-3">
@@ -102,7 +102,7 @@
                                 <div class="card h-100 border-start border-warning border-3">
                                     <div class="card-body text-center py-2">
                                         <h5 class="mb-0">@Model.MyPendingFirstCount</h5>
-                                        <small class="text-muted">1. Yonetici Onayinda</small>
+                                        <small class="text-muted">1. Yönetici Onayında</small>
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +110,7 @@
                                 <div class="card h-100 border-start border-info border-3">
                                     <div class="card-body text-center py-2">
                                         <h5 class="mb-0">@Model.MyPendingSecondCount</h5>
-                                        <small class="text-muted">2. Ust Yonetici Onayinda</small>
+                                        <small class="text-muted">2. Üst Yönetici Onayında</small>
                                     </div>
                                 </div>
                             </div>
@@ -118,7 +118,7 @@
                                 <div class="card h-100 border-start border-success border-3">
                                     <div class="card-body text-center py-2">
                                         <h5 class="mb-0">@Model.MyApprovedCount</h5>
-                                        <small class="text-muted">Onaylandi</small>
+                                        <small class="text-muted">Onaylandı</small>
                                     </div>
                                 </div>
                             </div>
@@ -134,7 +134,7 @@
                                 <div class="card h-100 border-start border-primary border-3">
                                     <div class="card-body text-center py-2">
                                         <h5 class="mb-0">%@Model.MyTotalWeight</h5>
-                                        <small class="text-muted">Toplam Agirlik</small>
+                                        <small class="text-muted">Toplam Ağırlık</small>
                                     </div>
                                 </div>
                             </div>
@@ -148,12 +148,12 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
-                                            <th>Hedef Basligi</th>
-                                            <th>Gosterge</th>
-                                            <th class="text-center">Hedef Deger</th>
-                                            <th class="text-center">Agirlik</th>
+                                            <th>Hedef Başlığı</th>
+                                            <th>Gösterge</th>
+                                            <th class="text-center">Hedef Değer</th>
+                                            <th class="text-center">Ağırlık</th>
                                             <th class="text-center">Durum</th>
-                                            <th class="text-center">Islem</th>
+                                            <th class="text-center">İşlem</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -198,75 +198,90 @@
                         {
                             <div class="text-center py-4">
                                 <i class="bx bx-target-lock bx-lg text-muted mb-2"></i>
-                                <p class="text-muted">Bu donem icin hedef bulunamadi.</p>
+                                <p class="text-muted">Bu dönem için hedef bulunamadı.</p>
                                 <a href="/hedeflerim/yeni" class="btn btn-primary btn-sm"><i class="bx bx-plus me-1"></i>Yeni Hedef Ekle</a>
                             </div>
                         }
                     </div>
                     <div class="tab-pane fade" id="tab-own-competency" role="tabpanel">
                         <div class="text-center py-4">
-                            <p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p>
+                            <p class="text-muted">Yetkinlik formu içeriği buraya gelecek.</p>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="tab-own-result" role="tabpanel">
                         <div class="text-center py-4">
-                            <p class="text-muted">Sonuc icerigi buraya gelecek.</p>
+                            <p class="text-muted">Sonuç içeriği buraya gelecek.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- =============== TAB 2: ASTLARIMA AiT FORMLAR =============== -->
+            <!-- =============== TAB 2: ASTLARIMA AİT FORMLAR (1. YÖNETİCİ ONAYI) =============== -->
             <div class="tab-pane fade @(Model.ActiveTab == "sub" ? "show active" : "")" id="content-sub-forms" role="tabpanel">
                 <!-- Alt Sekme -->
                 <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
                     <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-sub-goal" role="tab">
-                        Hedef Formlari
+                        Hedef Formları
                         @if (Model.SubordinatePendingCount > 0)
                         {
                             <span class="badge bg-warning ms-1">@Model.SubordinatePendingCount</span>
                         }
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-competency" role="tab">
-                        Yetkinlik Formlari
+                        Yetkinlik Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-potential" role="tab">
-                        Potansiyel Formlari
+                        Potansiyel Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-interview" role="tab">
-                        Gorusme Formlari
+                        Görüşme Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-routing" role="tab">
-                        Yonlendirme Formlari
+                        Yönlendirme Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-result" role="tab">
-                        Sonuc
+                        Sonuç
                     </a>
                 </div>
 
                 <div class="tab-content">
+                    <!-- Astlarıma ait HEDEF formları - 1. yönetici onayı -->
                     <div class="tab-pane fade show active" id="tab-sub-goal" role="tabpanel">
                         @if (Model.SubordinateGoals.Any())
                         {
+                            @if (Model.SubordinatePendingCount > 0)
+                            {
+                                <div class="alert alert-warning d-flex align-items-center mb-3">
+                                    <i class="bx bx-bell me-2 fs-5"></i>
+                                    <div>
+                                        <strong>@Model.SubordinatePendingCount çalışanın</strong> hedefleri 1. yönetici onayınızı bekliyor.
+                                    </div>
+                                </div>
+                            }
+
                             <div class="accordion" id="subordinateAccordion">
                                 @foreach (var sub in Model.SubordinateGoals)
                                 {
-                                    var accordionId = $"sub-{sub.PeriodInUserId.ToString().Substring(0, 8)}";
+                                    var accordionId = $"sub-{sub.PeriodInUserId.ToString().Replace("-", "").Substring(0, 8)}";
                                     var hasPending = sub.CanApprove;
-                                    var borderClass = hasPending ? "border-warning" : "border-light";
+                                    var borderClass = hasPending ? "border-warning border-2" : "";
                                     <div class="accordion-item @borderClass mb-2">
                                         <h2 class="accordion-header" id="heading-@accordionId">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@accordionId">
-                                                <div class="d-flex justify-content-between w-100 me-3">
+                                            <button class="accordion-button @(hasPending ? "" : "collapsed")" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapse-@accordionId"
+                                                    aria-expanded="@(hasPending ? "true" : "false")">
+                                                <div class="d-flex justify-content-between w-100 me-3 align-items-center">
                                                     <div>
                                                         <strong>@sub.EmployeeName</strong>
-                                                        <small class="text-muted ms-2">@sub.EmployeeTitle - @sub.Department</small>
-                                                        <small class="text-muted ms-2">(PerNr: @sub.PerNr)</small>
+                                                        <small class="text-muted ms-2">@sub.EmployeeTitle</small>
+                                                        <small class="text-muted ms-1">- @sub.Department</small>
                                                     </div>
-                                                    <div>
+                                                    <div class="d-flex gap-1 align-items-center">
                                                         @if (hasPending)
                                                         {
-                                                            <span class="badge bg-warning">Onay Bekliyor</span>
+                                                            <span class="badge bg-warning text-dark">
+                                                                <i class="bx bx-time-five me-1"></i>1. Onay Bekliyor
+                                                            </span>
                                                         }
                                                         <span class="badge bg-label-primary">%@sub.TotalWeight</span>
                                                         <span class="badge bg-label-secondary">@sub.Goals.Count hedef</span>
@@ -274,18 +289,21 @@
                                                 </div>
                                             </button>
                                         </h2>
-                                        <div id="collapse-@accordionId" class="accordion-collapse collapse" data-bs-parent="#subordinateAccordion">
+                                        <div id="collapse-@accordionId"
+                                             class="accordion-collapse collapse @(hasPending ? "show" : "")"
+                                             data-bs-parent="#subordinateAccordion">
                                             <div class="accordion-body">
                                                 <div class="table-responsive">
                                                     <table class="table table-sm table-hover">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>#</th>
-                                                                <th>Hedef Basligi</th>
-                                                                <th>Gosterge</th>
-                                                                <th class="text-center">Hedef Deger</th>
-                                                                <th class="text-center">Agirlik</th>
+                                                                <th>Hedef Başlığı</th>
+                                                                <th>Gösterge</th>
+                                                                <th class="text-center">Hedef Değer</th>
+                                                                <th class="text-center">Ağırlık</th>
                                                                 <th class="text-center">Durum</th>
+                                                                <th class="text-center">Yönetici Notu</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -309,11 +327,29 @@
                                                                         {
                                                                             <br /><small class="text-muted">@(goal.GoalDescription.Length > 80 ? goal.GoalDescription.Substring(0, 80) + "..." : goal.GoalDescription)</small>
                                                                         }
+                                                                        @if (!string.IsNullOrEmpty(goal.EmployeeNote))
+                                                                        {
+                                                                            <br /><small class="text-info"><i class="bx bx-comment-detail me-1"></i>@goal.EmployeeNote</small>
+                                                                        }
                                                                     </td>
                                                                     <td><small>@(goal.IndicatorName ?? "Manuel")</small></td>
                                                                     <td class="text-center">@goal.TargetValue @goal.TargetUnit</td>
                                                                     <td class="text-center"><strong>%@goal.Weight</strong></td>
-                                                                    <td class="text-center"><span class="badge bg-label-@gsc">@goal.StatusText</span></td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-label-@gsc">@goal.StatusText</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        @if (!string.IsNullOrEmpty(goal.ManagerNote))
+                                                                        {
+                                                                            <small class="text-muted" title="@goal.ManagerNote">
+                                                                                <i class="bx bx-note me-1"></i>@(goal.ManagerNote.Length > 40 ? goal.ManagerNote.Substring(0, 40) + "..." : goal.ManagerNote)
+                                                                            </small>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <small class="text-muted">-</small>
+                                                                        }
+                                                                    </td>
                                                                 </tr>
                                                                 subIdx++;
                                                             }
@@ -321,10 +357,16 @@
                                                     </table>
                                                 </div>
 
+                                                @{
+                                                    var draftGoalCount = sub.Goals.Count(g => g.Status == GoalStatus.Draft);
+                                                    var allApprovedOrRejected = sub.Goals.Any() && sub.Goals.All(g => g.Status == GoalStatus.Approved || g.Status == GoalStatus.Rejected || g.Status == GoalStatus.PendingSecondApproval);
+                                                    var pendingSecondCount = sub.Goals.Count(g => g.Status == GoalStatus.PendingSecondApproval);
+                                                }
+
                                                 @if (hasPending)
                                                 {
                                                     <div class="d-flex justify-content-end gap-2 mt-3">
-                                                        <button class="btn btn-danger btn-reject-goals"
+                                                        <button class="btn btn-outline-danger btn-reject-goals"
                                                                 data-period-in-user-id="@sub.PeriodInUserId"
                                                                 data-period-id="@sub.PeriodId"
                                                                 data-approval-level="1"
@@ -340,26 +382,29 @@
                                                         </button>
                                                     </div>
                                                 }
-                                                else
+                                                else if (draftGoalCount > 0)
                                                 {
-                                                    var draftGoalCount = sub.Goals.Count(g => g.Status == GoalStatus.Draft);
-                                                    var allApprovedOrRejected = sub.Goals.Any() && sub.Goals.All(g => g.Status == GoalStatus.Approved || g.Status == GoalStatus.Rejected);
-                                                    if (draftGoalCount > 0)
-                                                    {
-                                                        <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
-                                                            <small><i class="bx bx-info-circle me-1"></i>
-                                                                <strong>@draftGoalCount hedef</strong> henuz onaya gonderilmemis. Calisanin tum hedeflerini onaya gondermesi bekleniyor.
-                                                            </small>
-                                                        </div>
-                                                    }
-                                                    else if (allApprovedOrRejected)
-                                                    {
-                                                        <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
-                                                            <small><i class="bx bx-check-circle me-1"></i>
-                                                                Bu calisanin hedefleri onaylandi veya reddedildi.
-                                                            </small>
-                                                        </div>
-                                                    }
+                                                    <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
+                                                        <small><i class="bx bx-info-circle me-1"></i>
+                                                            <strong>@draftGoalCount hedef</strong> henüz onaya gönderilmemiş. Çalışanın tüm hedeflerini onaya göndermesi bekleniyor.
+                                                        </small>
+                                                    </div>
+                                                }
+                                                else if (pendingSecondCount > 0)
+                                                {
+                                                    <div class="alert alert-info py-2 px-3 mt-3 mb-0">
+                                                        <small><i class="bx bx-time me-1"></i>
+                                                            Hedefler 1. onayı geçti, <strong>2. üst yönetici onayı bekleniyor.</strong>
+                                                        </small>
+                                                    </div>
+                                                }
+                                                else if (allApprovedOrRejected)
+                                                {
+                                                    <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
+                                                        <small><i class="bx bx-check-circle me-1"></i>
+                                                            Bu çalışanın hedefleri onaylandı veya reddedildi.
+                                                        </small>
+                                                    </div>
                                                 }
                                             </div>
                                         </div>
@@ -371,70 +416,85 @@
                         {
                             <div class="text-center py-4">
                                 <i class="bx bx-user bx-lg text-muted mb-2"></i>
-                                <p class="text-muted">Astlariniza ait hedef bulunamadi.</p>
+                                <p class="text-muted">Astlarınıza ait hedef bulunamadı.</p>
                             </div>
                         }
                     </div>
                     <div class="tab-pane fade" id="tab-sub-competency" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu içeriği buraya gelecek.</p></div>
                     </div>
                     <div class="tab-pane fade" id="tab-sub-potential" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Potansiyel formu icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Potansiyel formu içeriği buraya gelecek.</p></div>
                     </div>
                     <div class="tab-pane fade" id="tab-sub-interview" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Gorusme formu icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Görüşme formu içeriği buraya gelecek.</p></div>
                     </div>
                     <div class="tab-pane fade" id="tab-sub-routing" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Yonlendirme formu icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Yönlendirme formu içeriği buraya gelecek.</p></div>
                     </div>
                     <div class="tab-pane fade" id="tab-sub-result" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Sonuc icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Sonuç içeriği buraya gelecek.</p></div>
                     </div>
                 </div>
             </div>
 
-            <!-- =============== TAB 3: ASTIMIN ASTLARINA AiT FORMLAR =============== -->
+            <!-- =============== TAB 3: ASTIMIN ASTLARINA AİT FORMLAR (2. YÖNETİCİ ONAYI) =============== -->
             <div class="tab-pane fade @(Model.ActiveTab == "subsub" ? "show active" : "")" id="content-sub-sub-forms" role="tabpanel">
                 <!-- Alt Sekme -->
                 <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
                     <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-subsub-goal" role="tab">
-                        Hedef Formlari
+                        Hedef Formları
                         @if (Model.SecondLevelPendingCount > 0)
                         {
                             <span class="badge bg-info ms-1">@Model.SecondLevelPendingCount</span>
                         }
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-subsub-competency" role="tab">
-                        Yetkinlik Formlari
+                        Yetkinlik Formları
                     </a>
                     <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-subsub-result" role="tab">
-                        Sonuc
+                        Sonuç
                     </a>
                 </div>
 
                 <div class="tab-content">
+                    <!-- Astımın astlarına ait HEDEF formları - 2. üst yönetici onayı -->
                     <div class="tab-pane fade show active" id="tab-subsub-goal" role="tabpanel">
                         @if (Model.SecondLevelSubordinateGoals.Any())
                         {
+                            @if (Model.SecondLevelPendingCount > 0)
+                            {
+                                <div class="alert alert-info d-flex align-items-center mb-3">
+                                    <i class="bx bx-bell me-2 fs-5"></i>
+                                    <div>
+                                        <strong>@Model.SecondLevelPendingCount çalışanın</strong> hedefleri 2. üst yönetici (sizin) onayınızı bekliyor.
+                                    </div>
+                                </div>
+                            }
+
                             <div class="accordion" id="secondLevelAccordion">
                                 @foreach (var sub in Model.SecondLevelSubordinateGoals)
                                 {
-                                    var accId = $"subsub-{sub.PeriodInUserId.ToString().Substring(0, 8)}";
+                                    var accId = $"subsub-{sub.PeriodInUserId.ToString().Replace("-", "").Substring(0, 8)}";
                                     var hasPending2 = sub.CanApprove;
-                                    var borderCls = hasPending2 ? "border-info" : "border-light";
+                                    var borderCls = hasPending2 ? "border-info border-2" : "";
                                     <div class="accordion-item @borderCls mb-2">
                                         <h2 class="accordion-header" id="heading-@accId">
-                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@accId">
-                                                <div class="d-flex justify-content-between w-100 me-3">
+                                            <button class="accordion-button @(hasPending2 ? "" : "collapsed")" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapse-@accId"
+                                                    aria-expanded="@(hasPending2 ? "true" : "false")">
+                                                <div class="d-flex justify-content-between w-100 me-3 align-items-center">
                                                     <div>
                                                         <strong>@sub.EmployeeName</strong>
-                                                        <small class="text-muted ms-2">@sub.EmployeeTitle - @sub.Department</small>
-                                                        <small class="text-muted ms-2">(PerNr: @sub.PerNr)</small>
+                                                        <small class="text-muted ms-2">@sub.EmployeeTitle</small>
+                                                        <small class="text-muted ms-1">- @sub.Department</small>
                                                     </div>
-                                                    <div>
+                                                    <div class="d-flex gap-1 align-items-center">
                                                         @if (hasPending2)
                                                         {
-                                                            <span class="badge bg-info">2. Onay Bekliyor</span>
+                                                            <span class="badge bg-info">
+                                                                <i class="bx bx-time-five me-1"></i>2. Onay Bekliyor
+                                                            </span>
                                                         }
                                                         <span class="badge bg-label-primary">%@sub.TotalWeight</span>
                                                         <span class="badge bg-label-secondary">@sub.Goals.Count hedef</span>
@@ -442,18 +502,21 @@
                                                 </div>
                                             </button>
                                         </h2>
-                                        <div id="collapse-@accId" class="accordion-collapse collapse" data-bs-parent="#secondLevelAccordion">
+                                        <div id="collapse-@accId"
+                                             class="accordion-collapse collapse @(hasPending2 ? "show" : "")"
+                                             data-bs-parent="#secondLevelAccordion">
                                             <div class="accordion-body">
                                                 <div class="table-responsive">
                                                     <table class="table table-sm table-hover">
                                                         <thead class="table-light">
                                                             <tr>
                                                                 <th>#</th>
-                                                                <th>Hedef Basligi</th>
-                                                                <th>Gosterge</th>
-                                                                <th class="text-center">Hedef Deger</th>
-                                                                <th class="text-center">Agirlik</th>
+                                                                <th>Hedef Başlığı</th>
+                                                                <th>Gösterge</th>
+                                                                <th class="text-center">Hedef Değer</th>
+                                                                <th class="text-center">Ağırlık</th>
                                                                 <th class="text-center">Durum</th>
+                                                                <th class="text-center">1. Yönetici Notu</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -475,11 +538,29 @@
                                                                         {
                                                                             <br /><small class="text-muted">@(goal.GoalDescription.Length > 80 ? goal.GoalDescription.Substring(0, 80) + "..." : goal.GoalDescription)</small>
                                                                         }
+                                                                        @if (!string.IsNullOrEmpty(goal.EmployeeNote))
+                                                                        {
+                                                                            <br /><small class="text-info"><i class="bx bx-comment-detail me-1"></i>@goal.EmployeeNote</small>
+                                                                        }
                                                                     </td>
                                                                     <td><small>@(goal.IndicatorName ?? "Manuel")</small></td>
                                                                     <td class="text-center">@goal.TargetValue @goal.TargetUnit</td>
                                                                     <td class="text-center"><strong>%@goal.Weight</strong></td>
-                                                                    <td class="text-center"><span class="badge bg-label-@gsc2">@goal.StatusText</span></td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-label-@gsc2">@goal.StatusText</span>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        @if (!string.IsNullOrEmpty(goal.ManagerNote))
+                                                                        {
+                                                                            <small class="text-muted" title="@goal.ManagerNote">
+                                                                                <i class="bx bx-note me-1"></i>@(goal.ManagerNote.Length > 40 ? goal.ManagerNote.Substring(0, 40) + "..." : goal.ManagerNote)
+                                                                            </small>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <small class="text-muted">-</small>
+                                                                        }
+                                                                    </td>
                                                                 </tr>
                                                                 ssIdx++;
                                                             }
@@ -490,7 +571,7 @@
                                                 @if (hasPending2)
                                                 {
                                                     <div class="d-flex justify-content-end gap-2 mt-3">
-                                                        <button class="btn btn-danger btn-reject-goals-second"
+                                                        <button class="btn btn-outline-danger btn-reject-goals-second"
                                                                 data-period-in-user-id="@sub.PeriodInUserId"
                                                                 data-period-id="@sub.PeriodId"
                                                                 data-approval-level="2"
@@ -500,6 +581,7 @@
                                                         <button class="btn btn-success btn-approve-goals-second"
                                                                 data-period-in-user-id="@sub.PeriodInUserId"
                                                                 data-period-id="@sub.PeriodId"
+                                                                data-approval-level="2"
                                                                 data-employee-name="@sub.EmployeeName">
                                                             <i class="bx bx-check me-1"></i>Onayla
                                                         </button>
@@ -508,20 +590,11 @@
                                                 else
                                                 {
                                                     var allFinalSecond = sub.Goals.Any() && sub.Goals.All(g => g.Status == GoalStatus.Approved || g.Status == GoalStatus.Rejected);
-                                                    var waitingFirst = sub.Goals.Any() && !sub.Goals.Any(g => g.Status == GoalStatus.PendingSecondApproval);
                                                     if (allFinalSecond)
                                                     {
                                                         <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
                                                             <small><i class="bx bx-check-circle me-1"></i>
-                                                                Bu calisanin hedefleri onaylandi veya reddedildi.
-                                                            </small>
-                                                        </div>
-                                                    }
-                                                    else if (waitingFirst)
-                                                    {
-                                                        <div class="alert alert-info py-2 px-3 mt-3 mb-0">
-                                                            <small><i class="bx bx-time me-1"></i>
-                                                                Bu calisanin hedefleri henuz 1. yonetici onayinda. Ust yonetici onayi icin 1. onay bekleniyor.
+                                                                Bu çalışanın hedefleri onaylandı veya reddedildi.
                                                             </small>
                                                         </div>
                                                     }
@@ -536,15 +609,15 @@
                         {
                             <div class="text-center py-4">
                                 <i class="bx bx-group bx-lg text-muted mb-2"></i>
-                                <p class="text-muted">Astinizin astlarina ait hedef bulunamadi.</p>
+                                <p class="text-muted">Astınızın astlarına ait onay bekleyen hedef bulunamadı.</p>
                             </div>
                         }
                     </div>
                     <div class="tab-pane fade" id="tab-subsub-competency" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu içeriği buraya gelecek.</p></div>
                     </div>
                     <div class="tab-pane fade" id="tab-subsub-result" role="tabpanel">
-                        <div class="text-center py-4"><p class="text-muted">Sonuc icerigi buraya gelecek.</p></div>
+                        <div class="text-center py-4"><p class="text-muted">Sonuç içeriği buraya gelecek.</p></div>
                     </div>
                 </div>
             </div>
@@ -554,7 +627,7 @@
 
 @section Scripts {
     <script>
-        // Tab state koruma
+        // Tab state koruma - sayfa yenilendiğinde aktif tab'ı koru
         $('#form-tab a[data-bs-toggle="list"]').on('shown.bs.tab', function (e) {
             var tabName = $(e.target).data('tab');
             if (tabName) {
@@ -562,7 +635,31 @@
             }
         });
 
-        // =================== 1. YONETICI ONAY ===================
+        // =================== YARDIMCI FONKSİYON ===================
+        function sendApprovalRequest(url, payload, successMsg) {
+            return $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message || successMsg, 'Başarılı');
+                        setTimeout(function () { location.reload(); }, 1200);
+                    } else {
+                        toastr.error(response.message || 'İşlem başarısız.', 'Hata');
+                    }
+                },
+                error: function (xhr) {
+                    var msg = 'Sunucu hatası oluştu.';
+                    if (xhr.status === 403) msg = 'Bu işlem için yetkiniz bulunmamaktadır.';
+                    else if (xhr.status === 401) msg = 'Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.';
+                    toastr.error(msg, 'Hata');
+                }
+            });
+        }
+
+        // =================== 1. YÖNETİCİ ONAY ===================
         $(document).on('click', '.btn-approve-goals', function () {
             var btn = $(this);
             var periodInUserId = btn.data('period-in-user-id');
@@ -571,46 +668,30 @@
 
             Swal.fire({
                 title: 'Hedefleri Onayla',
-                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini onaylamak istiyor musunuz?</p>' +
-                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (opsiyonel)" rows="3" maxlength="2000"></textarea>',
+                html: '<p><strong>' + employeeName + '</strong> adlı çalışanın hedeflerini <b>1. yönetici</b> olarak onaylamak istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (isteğe bağlı)" rows="3" maxlength="2000"></textarea>',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#28a745',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Onayla',
-                cancelButtonText: 'Iptal',
+                confirmButtonText: '<i class="bx bx-check me-1"></i>Onayla',
+                cancelButtonText: 'İptal',
                 preConfirm: () => {
                     return document.getElementById('swal-note').value;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/degerlendirme/onayla',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            periodInUserId: periodInUserId,
-                            periodId: periodId,
-                            managerNote: result.value,
-                            approvalLevel: 1
-                        }),
-                        success: function (response) {
-                            if (response.success) {
-                                toastr.success(response.message, 'Basarili');
-                                setTimeout(function () { location.reload(); }, 1000);
-                            } else {
-                                toastr.error(response.message, 'Hata');
-                            }
-                        },
-                        error: function () {
-                            toastr.error('Onay islemi sirasinda bir hata olustu.', 'Hata');
-                        }
-                    });
+                    sendApprovalRequest('/degerlendirme/onayla', {
+                        periodInUserId: periodInUserId,
+                        periodId: periodId,
+                        managerNote: result.value,
+                        approvalLevel: 1
+                    }, 'Hedefler başarıyla onaylandı.');
                 }
             });
         });
 
-        // =================== 1. YONETICI RED ===================
+        // =================== 1. YÖNETİCİ RED ===================
         $(document).on('click', '.btn-reject-goals', function () {
             var btn = $(this);
             var periodInUserId = btn.data('period-in-user-id');
@@ -620,51 +701,35 @@
 
             Swal.fire({
                 title: 'Hedefleri Reddet',
-                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini reddetmek istiyor musunuz?</p>' +
-                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazin..." rows="3" maxlength="2000" required></textarea>',
+                html: '<p><strong>' + employeeName + '</strong> adlı çalışanın hedeflerini reddetmek istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazın (zorunlu)..." rows="3" maxlength="2000" required></textarea>',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Reddet',
-                cancelButtonText: 'Iptal',
+                confirmButtonText: '<i class="bx bx-x me-1"></i>Reddet',
+                cancelButtonText: 'İptal',
                 preConfirm: () => {
                     var note = document.getElementById('swal-note').value;
                     if (!note || note.trim() === '') {
-                        Swal.showValidationMessage('Lutfen red nedenini yaziniz.');
+                        Swal.showValidationMessage('Lütfen red nedenini yazınız.');
                         return false;
                     }
                     return note;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/degerlendirme/reddet',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            periodInUserId: periodInUserId,
-                            periodId: periodId,
-                            managerNote: result.value,
-                            approvalLevel: approvalLevel
-                        }),
-                        success: function (response) {
-                            if (response.success) {
-                                toastr.success(response.message, 'Basarili');
-                                setTimeout(function () { location.reload(); }, 1000);
-                            } else {
-                                toastr.error(response.message, 'Hata');
-                            }
-                        },
-                        error: function () {
-                            toastr.error('Red islemi sirasinda bir hata olustu.', 'Hata');
-                        }
-                    });
+                    sendApprovalRequest('/degerlendirme/reddet', {
+                        periodInUserId: periodInUserId,
+                        periodId: periodId,
+                        managerNote: result.value,
+                        approvalLevel: approvalLevel
+                    }, 'Hedefler reddedildi.');
                 }
             });
         });
 
-        // =================== 2. UST YONETICI ONAY ===================
+        // =================== 2. ÜST YÖNETİCİ ONAY ===================
         $(document).on('click', '.btn-approve-goals-second', function () {
             var btn = $(this);
             var periodInUserId = btn.data('period-in-user-id');
@@ -672,47 +737,31 @@
             var employeeName = btn.data('employee-name');
 
             Swal.fire({
-                title: 'Hedefleri Onayla (2. Ust Yonetici)',
-                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini ust yonetici olarak onaylamak istiyor musunuz?</p>' +
-                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (opsiyonel)" rows="3" maxlength="2000"></textarea>',
+                title: 'Hedefleri Onayla (2. Üst Yönetici)',
+                html: '<p><strong>' + employeeName + '</strong> adlı çalışanın hedeflerini <b>2. üst yönetici</b> olarak onaylamak istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (isteğe bağlı)" rows="3" maxlength="2000"></textarea>',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#28a745',
+                confirmButtonColor: '#17a2b8',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Onayla',
-                cancelButtonText: 'Iptal',
+                confirmButtonText: '<i class="bx bx-check me-1"></i>Onayla',
+                cancelButtonText: 'İptal',
                 preConfirm: () => {
                     return document.getElementById('swal-note').value;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/degerlendirme/ust-onayla',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            periodInUserId: periodInUserId,
-                            periodId: periodId,
-                            managerNote: result.value,
-                            approvalLevel: 2
-                        }),
-                        success: function (response) {
-                            if (response.success) {
-                                toastr.success(response.message, 'Basarili');
-                                setTimeout(function () { location.reload(); }, 1000);
-                            } else {
-                                toastr.error(response.message, 'Hata');
-                            }
-                        },
-                        error: function () {
-                            toastr.error('Onay islemi sirasinda bir hata olustu.', 'Hata');
-                        }
-                    });
+                    sendApprovalRequest('/degerlendirme/ust-onayla', {
+                        periodInUserId: periodInUserId,
+                        periodId: periodId,
+                        managerNote: result.value,
+                        approvalLevel: 2
+                    }, 'Hedefler 2. üst yönetici tarafından onaylandı.');
                 }
             });
         });
 
-        // =================== 2. UST YONETICI RED ===================
+        // =================== 2. ÜST YÖNETİCİ RED ===================
         $(document).on('click', '.btn-reject-goals-second', function () {
             var btn = $(this);
             var periodInUserId = btn.data('period-in-user-id');
@@ -721,47 +770,31 @@
             var employeeName = btn.data('employee-name');
 
             Swal.fire({
-                title: 'Hedefleri Reddet (2. Ust Yonetici)',
-                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini ust yonetici olarak reddetmek istiyor musunuz?</p>' +
-                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazin..." rows="3" maxlength="2000" required></textarea>',
+                title: 'Hedefleri Reddet (2. Üst Yönetici)',
+                html: '<p><strong>' + employeeName + '</strong> adlı çalışanın hedeflerini <b>2. üst yönetici</b> olarak reddetmek istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazın (zorunlu)..." rows="3" maxlength="2000" required></textarea>',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Reddet',
-                cancelButtonText: 'Iptal',
+                confirmButtonText: '<i class="bx bx-x me-1"></i>Reddet',
+                cancelButtonText: 'İptal',
                 preConfirm: () => {
                     var note = document.getElementById('swal-note').value;
                     if (!note || note.trim() === '') {
-                        Swal.showValidationMessage('Lutfen red nedenini yaziniz.');
+                        Swal.showValidationMessage('Lütfen red nedenini yazınız.');
                         return false;
                     }
                     return note;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/degerlendirme/reddet',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            periodInUserId: periodInUserId,
-                            periodId: periodId,
-                            managerNote: result.value,
-                            approvalLevel: approvalLevel
-                        }),
-                        success: function (response) {
-                            if (response.success) {
-                                toastr.success(response.message, 'Basarili');
-                                setTimeout(function () { location.reload(); }, 1000);
-                            } else {
-                                toastr.error(response.message, 'Hata');
-                            }
-                        },
-                        error: function () {
-                            toastr.error('Red islemi sirasinda bir hata olustu.', 'Hata');
-                        }
-                    });
+                    sendApprovalRequest('/degerlendirme/reddet', {
+                        periodInUserId: periodInUserId,
+                        periodId: periodId,
+                        managerNote: result.value,
+                        approvalLevel: approvalLevel
+                    }, 'Hedefler reddedildi.');
                 }
             });
         });

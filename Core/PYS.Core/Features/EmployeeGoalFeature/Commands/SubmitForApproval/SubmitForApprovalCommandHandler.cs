@@ -44,11 +44,20 @@ namespace PYS.Core.Application.Features.EmployeeGoalFeature.Commands.SubmitForAp
                     };
                 }
 
-                var userEmail = appUser.Email!.ToUpperInvariant();
+                // PeriodInUser kaydını bul: önce RegistrationNumber (PerNr) ile dene, yoksa e-posta ile dön
+                PeriodInUser? periodInUser = null;
+                if (appUser.RegistrationNumber > 0)
+                {
+                    periodInUser = await unitOfWork.GetAppReadRepository<PeriodInUser>()
+                        .GetAsync(p => p.PerNr == appUser.RegistrationNumber && p.PeriodId == request.PeriodId && p.IsActive);
+                }
 
-                // PeriodInUser kaydını bul
-                var periodInUser = await unitOfWork.GetAppReadRepository<PeriodInUser>()
-                    .GetAsync(p => p.Mail.ToUpper() == userEmail && p.PeriodId == request.PeriodId && p.IsActive);
+                if (periodInUser == null && !string.IsNullOrEmpty(appUser.Email))
+                {
+                    var userEmail = appUser.Email.ToUpperInvariant();
+                    periodInUser = await unitOfWork.GetAppReadRepository<PeriodInUser>()
+                        .GetAsync(p => p.Mail.ToUpper() == userEmail && p.PeriodId == request.PeriodId && p.IsActive);
+                }
 
                 if (periodInUser == null)
                 {
