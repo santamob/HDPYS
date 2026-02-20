@@ -1,0 +1,332 @@
+@using PYS.Web.Services
+@model PYS.Web.ViewModels.MyGoals.CreateGoalViewModel
+@{
+    ViewData["Title"] = "Yeni Hedef";
+}
+
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light"><a asp-action="Index">Hedeflerim</a> /</span> Yeni Hedef Ekle
+</h4>
+
+<form asp-action="Create" method="post" id="createGoalForm">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bx bx-calendar me-2"></i>Dönem Seçimi</h5>
+                </div>
+                <div class="card-body">
+                    <select name="PeriodId" id="periodSelect" class="form-select" required>
+                        <option value="">Dönem Seçin</option>
+                        @foreach (var period in Model.Periods)
+                        {
+                            <option value="@period.Id" selected="@(Model.PeriodId == period.Id)">@period.DisplayName</option>
+                        }
+                    </select>
+                    <small class="text-muted mt-1 d-block">Dönem değiştirildiğinde sayfa yenilenir.</small>
+                </div>
+            </div>
+
+            <div class="card mb-4" id="indicatorPoolCard">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bx bx-bar-chart me-2"></i>Gösterge Havuzu</h5>
+                    <input type="text" id="indicatorSearch" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Gösterge ara...">
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    @if (Model.Indicators.Any())
+                    {
+                        @foreach (var indicator in Model.Indicators)
+                        {
+                            <div class="form-check mb-2 indicator-item">
+                                <input class="form-check-input indicator-checkbox" type="checkbox"
+                                       value="@indicator.Id" id="indicator_@indicator.Id"
+                                       data-name="@indicator.IndicatorName"
+                                       data-desc="@indicator.IndicatorDesc"
+                                       data-category="@indicator.IndicatorCategory">
+                                <label class="form-check-label" for="indicator_@indicator.Id">
+                                    <strong>@indicator.IndicatorName</strong>
+                                    @if (!string.IsNullOrEmpty(indicator.FormTypeText))
+                                    {
+                                        <br />
+
+                                        <small class="text-muted">@indicator.FormTypeText</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(indicator.IndicatorDesc))
+                                    {
+                                        <br />
+
+                                        <small class="text-muted">@indicator.IndicatorDesc</small>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-0">Gösterge bulunamadı.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mb-4" id="manualGoalCard">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bx bx-plus-circle me-2"></i>Manuel Hedef Ekle</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">Gösterge havuzunda olmayan özel bir hedef ekleyebilirsiniz.</p>
+                    <button type="button" class="btn btn-outline-primary w-100" id="btnAddManualGoal">
+                        <i class="bx bx-plus me-1"></i>Manuel Hedef Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Dönem Kota Doluluk Oranı</h6>
+                        <span id="totalWeightDisplay" class="badge bg-label-info">%0</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div id="weightProgressBar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="mt-1 d-block" id="existingWeightInfo"></small>
+                    <small class="text-muted mt-1 d-block" id="weightHint">Toplam ağırlık %100 olmalıdır.</small>
+                </div>
+            </div>
+
+            <div id="selectedGoalsContainer">
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="text-primary"><i class="bx bx-info-circle me-1"></i>İpuçları</h6>
+                    <ul class="mb-0 small text-muted">
+                        <li>Sol panelden gösterge seçin veya manuel hedef ekleyin</li>
+                        <li>Her hedef için başlık, değer, birim ve ağırlık bilgilerini doldurun</li>
+                        <li>Toplam ağırlık %100 olmalıdır</li>
+                        <li>Aynı gösterge için birden fazla hedef oluşturulamaz</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mb-4">
+                <a class="btn btn-outline-secondary" asp-action="Index">İptal</a>
+                <button type="submit" class="btn btn-primary" id="btnSaveDraft">
+                    <i class="bx bx-save me-1"></i>Taslak Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        var goalIndex = 0;
+        var existingWeight = @Model.CurrentTotalWeight.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+        // Dönem değişince sayfayı yenile (sunucudan güncel existingWeight alınır)
+        $('#periodSelect').on('change', function () {
+            var selectedPeriodId = $(this).val();
+            if (selectedPeriodId) {
+                window.location.href = '@Url.Action("Create", "MyGoals")?periodId=' + selectedPeriodId;
+            }
+        });
+
+        // Gösterge arama
+        $('#indicatorSearch').on('keyup', function () {
+            var searchText = $(this).val().toLowerCase();
+            $('.indicator-item').each(function () {
+                var name = $(this).find('label').text().toLowerCase();
+                $(this).toggle(name.indexOf(searchText) > -1);
+            });
+        });
+
+        // Gösterge checkbox değişikliği
+        $(document).on('change', '.indicator-checkbox', function () {
+            var indicatorId = $(this).val();
+            var indicatorName = $(this).data('name');
+            var indicatorDesc = $(this).data('desc');
+
+            if ($(this).is(':checked')) {
+                addGoalCard(indicatorId, indicatorName, indicatorDesc);
+            } else {
+                removeGoalCard(indicatorId);
+            }
+        });
+
+        // Manuel hedef ekleme
+        $('#btnAddManualGoal').on('click', function () {
+            addGoalCard(null, '', '');
+        });
+
+        function addGoalCard(indicatorId, indicatorName, indicatorDesc) {
+            var index = goalIndex++;
+            var idVal = indicatorId || '';
+            var titleVal = indicatorName || '';
+            var indicatorIdHtml = idVal
+                ? '<input type="hidden" name="Goals[' + index + '].IndicatorId" value="' + idVal + '" />'
+                : '';
+
+            var card = `
+                <div class="card mb-3 goal-card" data-indicator-id="${idVal}" data-index="${index}">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <h6 class="mb-0">${indicatorName ? indicatorName : 'Manuel Hedef'}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-remove-goal" data-indicator-id="${idVal}" data-index="${index}">
+                            <i class="bx bx-trash"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        ${indicatorIdHtml}
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label">Hedef Başlığı *</label>
+                                <input type="text" name="Goals[${index}].GoalTitle" class="form-control" value="${titleVal}" required maxlength="500">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Açıklama</label>
+                                <textarea name="Goals[${index}].GoalDescription" class="form-control" rows="2" maxlength="4000">${indicatorDesc || ''}</textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Hedef Değer *</label>
+                                <input type="number" step="0.01" name="Goals[${index}].TargetValue" class="form-control" required min="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Birim</label>
+                                <input type="text" name="Goals[${index}].TargetUnit" class="form-control" placeholder="%, adet, TL..." maxlength="50">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Ağırlık (%) *</label>
+                                <input type="number" step="0.01" name="Goals[${index}].Weight" class="form-control goal-weight" required min="1" max="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Başlangıç Tarihi</label>
+                                <input type="date" name="Goals[${index}].StartDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Bitiş Tarihi</label>
+                                <input type="date" name="Goals[${index}].EndDate" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Not</label>
+                                <textarea name="Goals[${index}].EmployeeNote" class="form-control" rows="1" maxlength="2000"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#selectedGoalsContainer').append(card);
+            updateTotalWeight();
+        }
+
+        function removeGoalCard(indicatorId) {
+            if (indicatorId) {
+                $(`.goal-card[data-indicator-id="${indicatorId}"]`).remove();
+                $(`#indicator_${indicatorId}`).prop('checked', false);
+            }
+        }
+
+        // Kart silme butonu
+        $(document).on('click', '.btn-remove-goal', function () {
+            var indicatorId = $(this).data('indicator-id');
+            var card = $(this).closest('.goal-card');
+
+            if (indicatorId) {
+                $(`#indicator_${indicatorId}`).prop('checked', false);
+            }
+            card.remove();
+            updateTotalWeight();
+        });
+
+        // Ağırlık güncelleme
+        $(document).on('change keyup', '.goal-weight', function () {
+            updateTotalWeight();
+        });
+
+        function updateTotalWeight() {
+            var newWeight = 0;
+            $('.goal-weight').each(function () {
+                var val = parseFloat($(this).val()) || 0;
+                newWeight += val;
+            });
+            newWeight = Math.round(newWeight * 100) / 100;
+
+            // Dönem kotasındaki toplam doluluk = önceki kayıtlı + bu formdaki
+            var total = Math.round((existingWeight + newWeight) * 100) / 100;
+            var remaining = Math.round((100 - total) * 100) / 100;
+
+            // Badge ve progress bar: dönemin toplam doluluk oranını gösterir
+            $('#totalWeightDisplay').text('%' + total);
+            $('#weightProgressBar').css('width', Math.min(total, 100) + '%');
+
+            // Bilgilendirme satırı: kayıtlı ve yeni hedeflerin ayrımını göster
+            if (existingWeight > 0) {
+                $('#existingWeightInfo')
+                    .text('Kayıtlı hedefler: %' + existingWeight + ' | Bu forma eklenenler: %' + newWeight)
+                    .removeClass('text-muted').addClass('text-info fw-semibold');
+            } else {
+                $('#existingWeightInfo').text('').removeClass('text-info fw-semibold').addClass('text-muted');
+            }
+
+            // Renk ve ipucu mesajı
+            if (total > 100) {
+                $('#weightProgressBar').removeClass('bg-success bg-warning').addClass('bg-danger');
+                var excess = Math.round((total - 100) * 100) / 100;
+                $('#weightHint')
+                    .text('Ağırlık %100\'ü aşıyor! Fazlalık: %' + excess)
+                    .removeClass('text-success text-warning').addClass('text-danger');
+            } else if (total === 100) {
+                $('#weightProgressBar').removeClass('bg-warning bg-danger').addClass('bg-success');
+                if (newWeight === 0) {
+                    // Kota zaten kayıtlı hedeflerle dolmuş, bu forma hiçbir şey eklenmemiş
+                    $('#weightHint')
+                        .text('Bu dönemin kayıtlı hedefleri ağırlık kotasını (%100) doldurmaktadır.')
+                        .removeClass('text-success text-danger').addClass('text-warning');
+                } else {
+                    $('#weightHint')
+                        .text('Ağırlık %100 - Tamamlandı!')
+                        .removeClass('text-danger text-warning').addClass('text-success');
+                }
+            } else {
+                $('#weightProgressBar').removeClass('bg-success bg-danger').addClass('bg-warning');
+                $('#weightHint')
+                    .text('Toplam ağırlık %100 olmalıdır. Kalan: %' + remaining)
+                    .removeClass('text-success text-danger').addClass('text-warning');
+            }
+        }
+
+        // Form gönderilmeden önce index'leri yeniden sırala (model binding için zorunlu)
+        function reindexGoalCards() {
+            var newIndex = 0;
+            $('.goal-card').each(function () {
+                var card = $(this);
+                card.find('input, textarea, select').each(function () {
+                    var name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/Goals\[\d+\]/, 'Goals[' + newIndex + ']'));
+                    }
+                });
+                card.attr('data-index', newIndex);
+                newIndex++;
+            });
+        }
+
+        // Form gönderilmeden kontrol
+        $('#createGoalForm').on('submit', function (e) {
+            var goalCount = $('.goal-card').length;
+            if (goalCount === 0) {
+                e.preventDefault();
+                toastr.warning('Lütfen en az bir hedef ekleyin.', 'Uyarı');
+                return false;
+            }
+
+            // Index'leri sıralı yap (0, 1, 2, ...) - ASP.NET model binding için gerekli
+            reindexGoalCards();
+        });
+
+        // Sayfa yüklendiğinde ağırlık durumunu göster
+        updateTotalWeight();
+    </script>
+}

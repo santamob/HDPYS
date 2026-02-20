@@ -37,6 +37,14 @@
             </a>
         </li>
         <!--Değerlendirme Formları  -->
+        <!--Begin:Hedeflerim -->
+        <li class="menu-item mt-2 @(ViewContext.IsActive("MyGoals") ? "active" : "")">
+            <a asp-controller="MyGoals" asp-action="Index" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-target-lock"></i>
+                <div data-i18n="Analytics">Hedeflerim</div>
+            </a>
+        </li>
+        <!--End:Hedeflerim -->
 
         @if (User.IsInRole(RoleConsts.Admin))
         {

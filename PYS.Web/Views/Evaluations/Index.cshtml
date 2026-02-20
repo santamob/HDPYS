@@ -1,146 +1,769 @@
-﻿@using PYS.Web.Services
+@using PYS.Core.Domain.Enums
+@model PYS.Web.ViewModels.Evaluations.EvaluationsIndexViewModel
 @{
-    
+    ViewData["Title"] = "Degerlendirme Formlari";
 }
 
-<div class="text-center">
-   
-    <p>Değerlendirme Formları</p>
+<h4 class="fw-bold py-3 mb-4">
+    <span class="text-muted fw-light">Performans /</span> Degerlendirme Formlari
+</h4>
+
+<!-- Donem Filtresi -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Donem</label>
+                <select name="periodId" class="form-select" id="periodFilter">
+                    <option value="">Tum Donemler</option>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <option value="@period.Id" selected="@(Model.SelectedPeriodId == period.Id)">@period.DisplayName</option>
+                    }
+                </select>
+            </div>
+            <input type="hidden" name="tab" id="activeTabInput" value="@Model.ActiveTab" />
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bx bx-filter-alt me-1"></i>Filtrele</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="card mt-4">
-   
+<div class="card">
     <div class="card-body">
-        <!-- Üst Sekmeler -->
+        <!-- Ust Sekmeler -->
         <div class="list-group list-group-horizontal-md text-md-center" id="form-tab" role="tablist">
-            <a class="list-group-item list-group-item-action active"
+            <a class="list-group-item list-group-item-action @(Model.ActiveTab == "own" ? "active" : "")"
                id="tab-own-forms"
                data-bs-toggle="list"
                href="#content-own-forms"
-               role="tab">
+               role="tab"
+               data-tab="own">
                 Kendime Ait Formlar
             </a>
-
-            <a class="list-group-item list-group-item-action"
+            <a class="list-group-item list-group-item-action @(Model.ActiveTab == "sub" ? "active" : "")"
                id="tab-sub-forms"
                data-bs-toggle="list"
                href="#content-sub-forms"
-               role="tab">
-                Astlarıma Ait Formlar
+               role="tab"
+               data-tab="sub">
+                Astlarima Ait Formlar
+                @if (Model.SubordinatePendingCount > 0)
+                {
+                    <span class="badge bg-warning ms-1">@Model.SubordinatePendingCount</span>
+                }
             </a>
-
-            <a class="list-group-item list-group-item-action"
+            <a class="list-group-item list-group-item-action @(Model.ActiveTab == "subsub" ? "active" : "")"
                id="tab-sub-sub-forms"
                data-bs-toggle="list"
                href="#content-sub-sub-forms"
-               role="tab">
-                Astımın Astlarına Ait Formlar
+               role="tab"
+               data-tab="subsub">
+                Astimin Astlarina Ait Formlar
+                @if (Model.SecondLevelPendingCount > 0)
+                {
+                    <span class="badge bg-info ms-1">@Model.SecondLevelPendingCount</span>
+                }
             </a>
         </div>
 
-        <!-- Üst Sekme İçerikleri -->
+        <!-- Ust Sekme Icerikleri -->
         <div class="tab-content mt-3" id="form-tab-content">
 
-            <!--  Kendime Ait Formlar  -->
-            <div class="tab-pane fade show active bg-light" id="content-own-forms" role="tabpanel">
-               
-                <!-- ALT SEKME: Hedef / Yetkinlik / Sonuç -->
-                <div class="list-group list-group-horizontal-sm text-sm-center" id="inner-tabs" role="tablist">
-                    <a class="list-group-item list-group-item-action active"
-                       data-bs-toggle="list"
-                       href="#tab-goal"
-                       role="tab">
-                        Hedef Formları
+            <!-- =============== TAB 1: KENDiME AiT FORMLAR =============== -->
+            <div class="tab-pane fade @(Model.ActiveTab == "own" ? "show active" : "")" id="content-own-forms" role="tabpanel">
+                <!-- Alt Sekme -->
+                <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
+                    <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-own-goal" role="tab">
+                        Hedef Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-competency"
-                       role="tab">
-                        Yetkinlik Formları
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-own-competency" role="tab">
+                        Yetkinlik Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-result"
-                       role="tab">
-                        Sonuç
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-own-result" role="tab">
+                        Sonuc
                     </a>
                 </div>
 
-                <!-- ALT SEKME İÇERİKLERİ -->
-                <div class="tab-content" id="inner-tab-content">
-                    <div class="tab-pane fade show active" id="tab-goal" role="tabpanel">
-                        <p>🎯 Hedef formu içeriği buraya gelecek.</p>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-own-goal" role="tabpanel">
+                        <!-- Durum Ozet Kartlari -->
+                        <div class="row mb-4">
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-secondary border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">@Model.MyDraftCount</h5>
+                                        <small class="text-muted">Taslak</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-warning border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">@Model.MyPendingFirstCount</h5>
+                                        <small class="text-muted">1. Yonetici Onayinda</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-info border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">@Model.MyPendingSecondCount</h5>
+                                        <small class="text-muted">2. Ust Yonetici Onayinda</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-success border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">@Model.MyApprovedCount</h5>
+                                        <small class="text-muted">Onaylandi</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-danger border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">@Model.MyRejectedCount</h5>
+                                        <small class="text-muted">Reddedildi</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-6 mb-2">
+                                <div class="card h-100 border-start border-primary border-3">
+                                    <div class="card-body text-center py-2">
+                                        <h5 class="mb-0">%@Model.MyTotalWeight</h5>
+                                        <small class="text-muted">Toplam Agirlik</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hedef Tablosu -->
+                        @if (Model.MyGoals.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped" id="myGoalsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Hedef Basligi</th>
+                                            <th>Gosterge</th>
+                                            <th class="text-center">Hedef Deger</th>
+                                            <th class="text-center">Agirlik</th>
+                                            <th class="text-center">Durum</th>
+                                            <th class="text-center">Islem</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{ var idx = 1; }
+                                        @foreach (var goal in Model.MyGoals)
+                                        {
+                                            var sc = goal.Status switch
+                                            {
+                                                GoalStatus.Draft => "secondary",
+                                                GoalStatus.PendingFirstApproval => "warning",
+                                                GoalStatus.PendingSecondApproval => "info",
+                                                GoalStatus.Approved => "success",
+                                                GoalStatus.Rejected => "danger",
+                                                _ => "secondary"
+                                            };
+                                            <tr>
+                                                <td>@idx</td>
+                                                <td>
+                                                    <strong>@goal.GoalTitle</strong>
+                                                    @if (!string.IsNullOrEmpty(goal.GoalDescription))
+                                                    {
+                                                        <br /><small class="text-muted">@(goal.GoalDescription.Length > 80 ? goal.GoalDescription.Substring(0, 80) + "..." : goal.GoalDescription)</small>
+                                                    }
+                                                </td>
+                                                <td><small>@(goal.IndicatorName ?? "Manuel")</small></td>
+                                                <td class="text-center">@goal.TargetValue @goal.TargetUnit</td>
+                                                <td class="text-center"><strong>%@goal.Weight</strong></td>
+                                                <td class="text-center"><span class="badge bg-label-@sc">@goal.StatusText</span></td>
+                                                <td class="text-center">
+                                                    <a href="/hedeflerim/detay/@goal.Id" class="btn btn-sm btn-outline-primary" title="Detay">
+                                                        <i class="bx bx-show"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            idx++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bx bx-target-lock bx-lg text-muted mb-2"></i>
+                                <p class="text-muted">Bu donem icin hedef bulunamadi.</p>
+                                <a href="/hedeflerim/yeni" class="btn btn-primary btn-sm"><i class="bx bx-plus me-1"></i>Yeni Hedef Ekle</a>
+                            </div>
+                        }
                     </div>
-                    <div class="tab-pane fade" id="tab-competency" role="tabpanel">
-                        <p>🧠 Yetkinlik formu içeriği buraya gelecek.</p>
+                    <div class="tab-pane fade" id="tab-own-competency" role="tabpanel">
+                        <div class="text-center py-4">
+                            <p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p>
+                        </div>
                     </div>
-                    <div class="tab-pane fade" id="tab-result" role="tabpanel">
-                        <p>✅ Sonuç içeriği buraya gelecek.</p>
+                    <div class="tab-pane fade" id="tab-own-result" role="tabpanel">
+                        <div class="text-center py-4">
+                            <p class="text-muted">Sonuc icerigi buraya gelecek.</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Diğer Üst Sekmeler (boş) -->
-            <div class="tab-pane fade" id="content-sub-forms" role="tabpanel">
-                <!-- ALT SEKME: Hedef / Yetkinlik / Sonuç -->
-                <div class="list-group list-group-horizontal-sm text-sm-center" id="inner-tabs" role="tablist">
-                    <a class="list-group-item list-group-item-action active"
-                       data-bs-toggle="list"
-                       href="#tab-ast-goal"
-                       role="tab">
-                        Hedef Formları
+            <!-- =============== TAB 2: ASTLARIMA AiT FORMLAR =============== -->
+            <div class="tab-pane fade @(Model.ActiveTab == "sub" ? "show active" : "")" id="content-sub-forms" role="tabpanel">
+                <!-- Alt Sekme -->
+                <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
+                    <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-sub-goal" role="tab">
+                        Hedef Formlari
+                        @if (Model.SubordinatePendingCount > 0)
+                        {
+                            <span class="badge bg-warning ms-1">@Model.SubordinatePendingCount</span>
+                        }
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-ast-competency"
-                       role="tab">
-                        Yetkinlik Formları
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-competency" role="tab">
+                        Yetkinlik Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-ast-competency"
-                       role="tab">
-                        Potansiyel Formları
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-potential" role="tab">
+                        Potansiyel Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-ast-competency"
-                       role="tab">
-                        Görüşme Formları
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-interview" role="tab">
+                        Gorusme Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-ast-competency"
-                       role="tab">
-                        Yönlendirme Formları
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-routing" role="tab">
+                        Yonlendirme Formlari
                     </a>
-                    <a class="list-group-item list-group-item-action"
-                       data-bs-toggle="list"
-                       href="#tab-ast-result"
-                       role="tab">
-                        Sonuç
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-sub-result" role="tab">
+                        Sonuc
                     </a>
                 </div>
 
-                <!-- ALT SEKME İÇERİKLERİ -->
-                <div class="tab-content" id="inner-tab-content">
-                    <div class="tab-pane fade show active" id="tab-ast-goal" role="tabpanel">
-                        <p>🎯 Hedef formu içeriği buraya gelecek AST.</p>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-sub-goal" role="tabpanel">
+                        @if (Model.SubordinateGoals.Any())
+                        {
+                            <div class="accordion" id="subordinateAccordion">
+                                @foreach (var sub in Model.SubordinateGoals)
+                                {
+                                    var accordionId = $"sub-{sub.PeriodInUserId.ToString().Substring(0, 8)}";
+                                    var hasPending = sub.CanApprove;
+                                    var borderClass = hasPending ? "border-warning" : "border-light";
+                                    <div class="accordion-item @borderClass mb-2">
+                                        <h2 class="accordion-header" id="heading-@accordionId">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@accordionId">
+                                                <div class="d-flex justify-content-between w-100 me-3">
+                                                    <div>
+                                                        <strong>@sub.EmployeeName</strong>
+                                                        <small class="text-muted ms-2">@sub.EmployeeTitle - @sub.Department</small>
+                                                        <small class="text-muted ms-2">(PerNr: @sub.PerNr)</small>
+                                                    </div>
+                                                    <div>
+                                                        @if (hasPending)
+                                                        {
+                                                            <span class="badge bg-warning">Onay Bekliyor</span>
+                                                        }
+                                                        <span class="badge bg-label-primary">%@sub.TotalWeight</span>
+                                                        <span class="badge bg-label-secondary">@sub.Goals.Count hedef</span>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="collapse-@accordionId" class="accordion-collapse collapse" data-bs-parent="#subordinateAccordion">
+                                            <div class="accordion-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-hover">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Hedef Basligi</th>
+                                                                <th>Gosterge</th>
+                                                                <th class="text-center">Hedef Deger</th>
+                                                                <th class="text-center">Agirlik</th>
+                                                                <th class="text-center">Durum</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{ var subIdx = 1; }
+                                                            @foreach (var goal in sub.Goals)
+                                                            {
+                                                                var gsc = goal.Status switch
+                                                                {
+                                                                    GoalStatus.Draft => "secondary",
+                                                                    GoalStatus.PendingFirstApproval => "warning",
+                                                                    GoalStatus.PendingSecondApproval => "info",
+                                                                    GoalStatus.Approved => "success",
+                                                                    GoalStatus.Rejected => "danger",
+                                                                    _ => "secondary"
+                                                                };
+                                                                <tr>
+                                                                    <td>@subIdx</td>
+                                                                    <td>
+                                                                        <strong>@goal.GoalTitle</strong>
+                                                                        @if (!string.IsNullOrEmpty(goal.GoalDescription))
+                                                                        {
+                                                                            <br /><small class="text-muted">@(goal.GoalDescription.Length > 80 ? goal.GoalDescription.Substring(0, 80) + "..." : goal.GoalDescription)</small>
+                                                                        }
+                                                                    </td>
+                                                                    <td><small>@(goal.IndicatorName ?? "Manuel")</small></td>
+                                                                    <td class="text-center">@goal.TargetValue @goal.TargetUnit</td>
+                                                                    <td class="text-center"><strong>%@goal.Weight</strong></td>
+                                                                    <td class="text-center"><span class="badge bg-label-@gsc">@goal.StatusText</span></td>
+                                                                </tr>
+                                                                subIdx++;
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                @if (hasPending)
+                                                {
+                                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                                        <button class="btn btn-danger btn-reject-goals"
+                                                                data-period-in-user-id="@sub.PeriodInUserId"
+                                                                data-period-id="@sub.PeriodId"
+                                                                data-approval-level="1"
+                                                                data-employee-name="@sub.EmployeeName">
+                                                            <i class="bx bx-x me-1"></i>Reddet
+                                                        </button>
+                                                        <button class="btn btn-success btn-approve-goals"
+                                                                data-period-in-user-id="@sub.PeriodInUserId"
+                                                                data-period-id="@sub.PeriodId"
+                                                                data-approval-level="1"
+                                                                data-employee-name="@sub.EmployeeName">
+                                                            <i class="bx bx-check me-1"></i>Onayla
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    var draftGoalCount = sub.Goals.Count(g => g.Status == GoalStatus.Draft);
+                                                    var allApprovedOrRejected = sub.Goals.Any() && sub.Goals.All(g => g.Status == GoalStatus.Approved || g.Status == GoalStatus.Rejected);
+                                                    if (draftGoalCount > 0)
+                                                    {
+                                                        <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
+                                                            <small><i class="bx bx-info-circle me-1"></i>
+                                                                <strong>@draftGoalCount hedef</strong> henuz onaya gonderilmemis. Calisanin tum hedeflerini onaya gondermesi bekleniyor.
+                                                            </small>
+                                                        </div>
+                                                    }
+                                                    else if (allApprovedOrRejected)
+                                                    {
+                                                        <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
+                                                            <small><i class="bx bx-check-circle me-1"></i>
+                                                                Bu calisanin hedefleri onaylandi veya reddedildi.
+                                                            </small>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bx bx-user bx-lg text-muted mb-2"></i>
+                                <p class="text-muted">Astlariniza ait hedef bulunamadi.</p>
+                            </div>
+                        }
                     </div>
-                    <div class="tab-pane fade" id="tab-ast-competency" role="tabpanel">
-                        <p>🧠 Yetkinlik formu içeriği buraya gelecek AST.</p>
+                    <div class="tab-pane fade" id="tab-sub-competency" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p></div>
                     </div>
-                    <div class="tab-pane fade" id="tab-ast-result" role="tabpanel">
-                        <p>✅ Sonuç içeriği buraya gelecek AST.</p>
+                    <div class="tab-pane fade" id="tab-sub-potential" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Potansiyel formu icerigi buraya gelecek.</p></div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-sub-interview" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Gorusme formu icerigi buraya gelecek.</p></div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-sub-routing" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Yonlendirme formu icerigi buraya gelecek.</p></div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-sub-result" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Sonuc icerigi buraya gelecek.</p></div>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="content-sub-sub-forms" role="tabpanel">
-                <p>Astımın astlarına ait formlar sekmesi</p>
-            </div>
+            <!-- =============== TAB 3: ASTIMIN ASTLARINA AiT FORMLAR =============== -->
+            <div class="tab-pane fade @(Model.ActiveTab == "subsub" ? "show active" : "")" id="content-sub-sub-forms" role="tabpanel">
+                <!-- Alt Sekme -->
+                <div class="list-group list-group-horizontal-sm text-sm-center mb-3" role="tablist">
+                    <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#tab-subsub-goal" role="tab">
+                        Hedef Formlari
+                        @if (Model.SecondLevelPendingCount > 0)
+                        {
+                            <span class="badge bg-info ms-1">@Model.SecondLevelPendingCount</span>
+                        }
+                    </a>
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-subsub-competency" role="tab">
+                        Yetkinlik Formlari
+                    </a>
+                    <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#tab-subsub-result" role="tab">
+                        Sonuc
+                    </a>
+                </div>
 
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-subsub-goal" role="tabpanel">
+                        @if (Model.SecondLevelSubordinateGoals.Any())
+                        {
+                            <div class="accordion" id="secondLevelAccordion">
+                                @foreach (var sub in Model.SecondLevelSubordinateGoals)
+                                {
+                                    var accId = $"subsub-{sub.PeriodInUserId.ToString().Substring(0, 8)}";
+                                    var hasPending2 = sub.CanApprove;
+                                    var borderCls = hasPending2 ? "border-info" : "border-light";
+                                    <div class="accordion-item @borderCls mb-2">
+                                        <h2 class="accordion-header" id="heading-@accId">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@accId">
+                                                <div class="d-flex justify-content-between w-100 me-3">
+                                                    <div>
+                                                        <strong>@sub.EmployeeName</strong>
+                                                        <small class="text-muted ms-2">@sub.EmployeeTitle - @sub.Department</small>
+                                                        <small class="text-muted ms-2">(PerNr: @sub.PerNr)</small>
+                                                    </div>
+                                                    <div>
+                                                        @if (hasPending2)
+                                                        {
+                                                            <span class="badge bg-info">2. Onay Bekliyor</span>
+                                                        }
+                                                        <span class="badge bg-label-primary">%@sub.TotalWeight</span>
+                                                        <span class="badge bg-label-secondary">@sub.Goals.Count hedef</span>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        </h2>
+                                        <div id="collapse-@accId" class="accordion-collapse collapse" data-bs-parent="#secondLevelAccordion">
+                                            <div class="accordion-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-hover">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>#</th>
+                                                                <th>Hedef Basligi</th>
+                                                                <th>Gosterge</th>
+                                                                <th class="text-center">Hedef Deger</th>
+                                                                <th class="text-center">Agirlik</th>
+                                                                <th class="text-center">Durum</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{ var ssIdx = 1; }
+                                                            @foreach (var goal in sub.Goals)
+                                                            {
+                                                                var gsc2 = goal.Status switch
+                                                                {
+                                                                    GoalStatus.PendingSecondApproval => "info",
+                                                                    GoalStatus.Approved => "success",
+                                                                    GoalStatus.Rejected => "danger",
+                                                                    _ => "secondary"
+                                                                };
+                                                                <tr>
+                                                                    <td>@ssIdx</td>
+                                                                    <td>
+                                                                        <strong>@goal.GoalTitle</strong>
+                                                                        @if (!string.IsNullOrEmpty(goal.GoalDescription))
+                                                                        {
+                                                                            <br /><small class="text-muted">@(goal.GoalDescription.Length > 80 ? goal.GoalDescription.Substring(0, 80) + "..." : goal.GoalDescription)</small>
+                                                                        }
+                                                                    </td>
+                                                                    <td><small>@(goal.IndicatorName ?? "Manuel")</small></td>
+                                                                    <td class="text-center">@goal.TargetValue @goal.TargetUnit</td>
+                                                                    <td class="text-center"><strong>%@goal.Weight</strong></td>
+                                                                    <td class="text-center"><span class="badge bg-label-@gsc2">@goal.StatusText</span></td>
+                                                                </tr>
+                                                                ssIdx++;
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                @if (hasPending2)
+                                                {
+                                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                                        <button class="btn btn-danger btn-reject-goals-second"
+                                                                data-period-in-user-id="@sub.PeriodInUserId"
+                                                                data-period-id="@sub.PeriodId"
+                                                                data-approval-level="2"
+                                                                data-employee-name="@sub.EmployeeName">
+                                                            <i class="bx bx-x me-1"></i>Reddet
+                                                        </button>
+                                                        <button class="btn btn-success btn-approve-goals-second"
+                                                                data-period-in-user-id="@sub.PeriodInUserId"
+                                                                data-period-id="@sub.PeriodId"
+                                                                data-employee-name="@sub.EmployeeName">
+                                                            <i class="bx bx-check me-1"></i>Onayla
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    var allFinalSecond = sub.Goals.Any() && sub.Goals.All(g => g.Status == GoalStatus.Approved || g.Status == GoalStatus.Rejected);
+                                                    var waitingFirst = sub.Goals.Any() && !sub.Goals.Any(g => g.Status == GoalStatus.PendingSecondApproval);
+                                                    if (allFinalSecond)
+                                                    {
+                                                        <div class="alert alert-secondary py-2 px-3 mt-3 mb-0">
+                                                            <small><i class="bx bx-check-circle me-1"></i>
+                                                                Bu calisanin hedefleri onaylandi veya reddedildi.
+                                                            </small>
+                                                        </div>
+                                                    }
+                                                    else if (waitingFirst)
+                                                    {
+                                                        <div class="alert alert-info py-2 px-3 mt-3 mb-0">
+                                                            <small><i class="bx bx-time me-1"></i>
+                                                                Bu calisanin hedefleri henuz 1. yonetici onayinda. Ust yonetici onayi icin 1. onay bekleniyor.
+                                                            </small>
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <i class="bx bx-group bx-lg text-muted mb-2"></i>
+                                <p class="text-muted">Astinizin astlarina ait hedef bulunamadi.</p>
+                            </div>
+                        }
+                    </div>
+                    <div class="tab-pane fade" id="tab-subsub-competency" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Yetkinlik formu icerigi buraya gelecek.</p></div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-subsub-result" role="tabpanel">
+                        <div class="text-center py-4"><p class="text-muted">Sonuc icerigi buraya gelecek.</p></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Tab state koruma
+        $('#form-tab a[data-bs-toggle="list"]').on('shown.bs.tab', function (e) {
+            var tabName = $(e.target).data('tab');
+            if (tabName) {
+                $('#activeTabInput').val(tabName);
+            }
+        });
+
+        // =================== 1. YONETICI ONAY ===================
+        $(document).on('click', '.btn-approve-goals', function () {
+            var btn = $(this);
+            var periodInUserId = btn.data('period-in-user-id');
+            var periodId = btn.data('period-id');
+            var employeeName = btn.data('employee-name');
+
+            Swal.fire({
+                title: 'Hedefleri Onayla',
+                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini onaylamak istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (opsiyonel)" rows="3" maxlength="2000"></textarea>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Onayla',
+                cancelButtonText: 'Iptal',
+                preConfirm: () => {
+                    return document.getElementById('swal-note').value;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/degerlendirme/onayla',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            periodInUserId: periodInUserId,
+                            periodId: periodId,
+                            managerNote: result.value,
+                            approvalLevel: 1
+                        }),
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message, 'Basarili');
+                                setTimeout(function () { location.reload(); }, 1000);
+                            } else {
+                                toastr.error(response.message, 'Hata');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Onay islemi sirasinda bir hata olustu.', 'Hata');
+                        }
+                    });
+                }
+            });
+        });
+
+        // =================== 1. YONETICI RED ===================
+        $(document).on('click', '.btn-reject-goals', function () {
+            var btn = $(this);
+            var periodInUserId = btn.data('period-in-user-id');
+            var periodId = btn.data('period-id');
+            var approvalLevel = btn.data('approval-level');
+            var employeeName = btn.data('employee-name');
+
+            Swal.fire({
+                title: 'Hedefleri Reddet',
+                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini reddetmek istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazin..." rows="3" maxlength="2000" required></textarea>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Reddet',
+                cancelButtonText: 'Iptal',
+                preConfirm: () => {
+                    var note = document.getElementById('swal-note').value;
+                    if (!note || note.trim() === '') {
+                        Swal.showValidationMessage('Lutfen red nedenini yaziniz.');
+                        return false;
+                    }
+                    return note;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/degerlendirme/reddet',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            periodInUserId: periodInUserId,
+                            periodId: periodId,
+                            managerNote: result.value,
+                            approvalLevel: approvalLevel
+                        }),
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message, 'Basarili');
+                                setTimeout(function () { location.reload(); }, 1000);
+                            } else {
+                                toastr.error(response.message, 'Hata');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Red islemi sirasinda bir hata olustu.', 'Hata');
+                        }
+                    });
+                }
+            });
+        });
+
+        // =================== 2. UST YONETICI ONAY ===================
+        $(document).on('click', '.btn-approve-goals-second', function () {
+            var btn = $(this);
+            var periodInUserId = btn.data('period-in-user-id');
+            var periodId = btn.data('period-id');
+            var employeeName = btn.data('employee-name');
+
+            Swal.fire({
+                title: 'Hedefleri Onayla (2. Ust Yonetici)',
+                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini ust yonetici olarak onaylamak istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Not ekleyin (opsiyonel)" rows="3" maxlength="2000"></textarea>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Onayla',
+                cancelButtonText: 'Iptal',
+                preConfirm: () => {
+                    return document.getElementById('swal-note').value;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/degerlendirme/ust-onayla',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            periodInUserId: periodInUserId,
+                            periodId: periodId,
+                            managerNote: result.value,
+                            approvalLevel: 2
+                        }),
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message, 'Basarili');
+                                setTimeout(function () { location.reload(); }, 1000);
+                            } else {
+                                toastr.error(response.message, 'Hata');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Onay islemi sirasinda bir hata olustu.', 'Hata');
+                        }
+                    });
+                }
+            });
+        });
+
+        // =================== 2. UST YONETICI RED ===================
+        $(document).on('click', '.btn-reject-goals-second', function () {
+            var btn = $(this);
+            var periodInUserId = btn.data('period-in-user-id');
+            var periodId = btn.data('period-id');
+            var approvalLevel = btn.data('approval-level');
+            var employeeName = btn.data('employee-name');
+
+            Swal.fire({
+                title: 'Hedefleri Reddet (2. Ust Yonetici)',
+                html: '<p><strong>' + employeeName + '</strong> adli calisanin hedeflerini ust yonetici olarak reddetmek istiyor musunuz?</p>' +
+                    '<textarea id="swal-note" class="form-control mt-2" placeholder="Red nedenini yazin..." rows="3" maxlength="2000" required></textarea>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Reddet',
+                cancelButtonText: 'Iptal',
+                preConfirm: () => {
+                    var note = document.getElementById('swal-note').value;
+                    if (!note || note.trim() === '') {
+                        Swal.showValidationMessage('Lutfen red nedenini yaziniz.');
+                        return false;
+                    }
+                    return note;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/degerlendirme/reddet',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            periodInUserId: periodInUserId,
+                            periodId: periodId,
+                            managerNote: result.value,
+                            approvalLevel: approvalLevel
+                        }),
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success(response.message, 'Basarili');
+                                setTimeout(function () { location.reload(); }, 1000);
+                            } else {
+                                toastr.error(response.message, 'Hata');
+                            }
+                        },
+                        error: function () {
+                            toastr.error('Red islemi sirasinda bir hata olustu.', 'Hata');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

@@ -3,7 +3,27 @@
     "allow": [
       "Bash(dotnet ef migrations add:*)",
       "Bash(dotnet ef database update:*)",
-      "Bash(sqlcmd:*)"
+      "Bash(sqlcmd:*)",
+      "Bash(dotnet build:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c:*)",
+      "Bash(powershell:*)",
+      "Bash(findstr:*)",
+      "Bash(dir /s /b \"C:\\\\Users\\\\mobulut\\\\.nuget\\\\packages\\\\santafarma*\")",
+      "Bash(find:*)",
+      "Bash(__NEW_LINE_ab9c9ba8f3d2ec23__ echo \"=== TABS FOUND ===\")",
+      "Bash(echo:*)",
+      "Bash(__NEW_LINE_e579ad01b165b7c9__ echo \"=== STATUS CARDS ===\")",
+      "Bash(__NEW_LINE_8016b631d129a9b4__ echo \"=== SUBTABS ===\")",
+      "Bash(# Get the full error response curl -s -b /tmp/pys_cookies.txt http://localhost:5161/degerlendirme)",
+      "Bash(dotnet ef dbcontext list:*)",
+      "Bash(curl:*)",
+      "Bash(__NEW_LINE_9e4d3952dfccb87a__ echo \"\")",
+      "Bash(__NEW_LINE_07de105f4f94b077__ echo \"\")",
+      "Bash(while read line)",
+      "Bash(do echo \"   PASSED: Kolon mevcut: $line\")",
+      "Bash(done)",
+      "Bash(__NEW_LINE_338762bfe08e7eee__ echo \"\")"
     ]
   }
 }

